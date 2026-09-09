@@ -10,8 +10,8 @@ RUN npm run build
 FROM python:3.11-slim
 WORKDIR /app
 
-# Install system dependencies (WeasyPrint libraries for PDF generation + curl)
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install system dependencies (WeasyPrint libraries for PDF generation + curl + mariadb-server)
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     build-essential \
     libpango-1.0-0 \
     libpangocairo-1.0-0 \
@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libffi-dev \
     shared-mime-info \
     curl \
+    mariadb-server \
     && rm -rf /var/lib/apt/lists/*
 
 # Install python dependencies

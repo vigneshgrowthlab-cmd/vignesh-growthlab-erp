@@ -5,14 +5,25 @@ from app.core.config import settings
 
 import os
 
-db_url = os.getenv("DATABASE_URL") or os.getenv("MYSQL_URL") or settings.DATABASE_URL
-if os.getenv("MYSQLHOST") and not os.getenv("DATABASE_URL") and not os.getenv("MYSQL_URL"):
-    _user = os.getenv("MYSQLUSER", "root")
-    _pwd = os.getenv("MYSQLPASSWORD", "")
-    _host = os.getenv("MYSQLHOST")
-    _port = os.getenv("MYSQLPORT", "3306")
-    _db = os.getenv("MYSQLDATABASE", "railway")
-    db_url = f"mysql+pymysql://{_user}:{_pwd}@{_host}:{_port}/{_db}"
+db_url = (
+    os.getenv("DATABASE_URL")
+    or os.getenv("MYSQL_URL")
+    or os.getenv("MYSQL_PRIVATE_URL")
+    or os.getenv("MYSQL_PUBLIC_URL")
+    or None
+)
+
+if not db_url:
+    _host = os.getenv("MYSQLHOST") or os.getenv("MYSQL_HOST")
+    if _host:
+        _user = os.getenv("MYSQLUSER") or os.getenv("MYSQL_USER") or "root"
+        _pwd = os.getenv("MYSQLPASSWORD") or os.getenv("MYSQL_PASSWORD") or ""
+        _port = os.getenv("MYSQLPORT") or os.getenv("MYSQL_PORT") or "3306"
+        _db = os.getenv("MYSQLDATABASE") or os.getenv("MYSQL_DATABASE") or "railway"
+        db_url = f"mysql+pymysql://{_user}:{_pwd}@{_host}:{_port}/{_db}"
+
+if not db_url:
+    db_url = settings.DATABASE_URL
 
 if db_url.startswith("mysql://"):
     db_url = db_url.replace("mysql://", "mysql+pymysql://", 1)
