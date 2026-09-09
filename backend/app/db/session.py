@@ -3,7 +3,17 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
 
-db_url = settings.DATABASE_URL
+import os
+
+db_url = os.getenv("DATABASE_URL") or os.getenv("MYSQL_URL") or settings.DATABASE_URL
+if os.getenv("MYSQLHOST") and not os.getenv("DATABASE_URL") and not os.getenv("MYSQL_URL"):
+    _user = os.getenv("MYSQLUSER", "root")
+    _pwd = os.getenv("MYSQLPASSWORD", "")
+    _host = os.getenv("MYSQLHOST")
+    _port = os.getenv("MYSQLPORT", "3306")
+    _db = os.getenv("MYSQLDATABASE", "railway")
+    db_url = f"mysql+pymysql://{_user}:{_pwd}@{_host}:{_port}/{_db}"
+
 if db_url.startswith("mysql://"):
     db_url = db_url.replace("mysql://", "mysql+pymysql://", 1)
 

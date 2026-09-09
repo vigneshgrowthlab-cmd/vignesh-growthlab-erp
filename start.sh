@@ -18,6 +18,7 @@ python seed.py || true
 python seed_config.py || true
 python seed_doc_formats.py || true
 
-PORT=
+# Detect port assigned by Railway or default to 8000
+PORT="${PORT:-8000}"
 echo "Starting FastAPI server on port $PORT..."
 exec python -m uvicorn app.main:app --host 0.0.0.0 --port "$PORT"
