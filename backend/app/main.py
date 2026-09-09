@@ -146,6 +146,7 @@ def _auto_migrate():
         ("tds_entries","tan_number","VARCHAR(10)"),
         ("tds_entries","tds_number","VARCHAR(30)"),
         # ── users ──
+        ("users","is_locked","BOOLEAN DEFAULT FALSE"),
         ("users","failed_login_count","INT DEFAULT 0"),
         ("users","locked_until","DATETIME"),
         ("users","last_login","DATETIME"),
@@ -502,46 +503,34 @@ def _auto_migrate():
 def _ensure_default_superadmin():
     """Guarantee permanent super-admin credentials exist on every startup."""
     try:
-        from app.db.session import SessionLocal
-        from app.models.models import User
+        from sqlalchemy import text
         from app.core.security import hash_password
-        
-        db = SessionLocal()
-        try:
-            pwd_hash = hash_password("Admin@1234")
+
+        pwd_hash = hash_password("Admin@1234")
+        with engine.connect() as conn:
             for uname, email, fname in [
                 ("admin", "admin@vigneshgrowthlab.com", "Vignesh GrowthLab Admin"),
                 ("superadmin", "superadmin@vigneshgrowthlab.com", "Vignesh GrowthLab Superadmin"),
             ]:
-                u = db.query(User).filter(User.username == uname).first()
-                if not u:
-                    u = User(
-                        username=uname,
-                        email=email,
-                        full_name=fname,
-                        hashed_password=pwd_hash,
-                        role="super_admin",
-                        is_active=True,
-                    )
-                    db.add(u)
+                existing = conn.execute(text("SELECT id FROM users WHERE username=:u"), {"u": uname}).fetchone()
+                if not existing:
+                    conn.execute(text(
+                        "INSERT INTO users (username, email, full_name, hashed_password, role, is_active, is_locked, failed_login_count) "
+                        "VALUES (:u, :e, :fn, :pw, 'super_admin', 1, 0, 0)"
+                    ), {"u": uname, "e": email, "fn": fname, "pw": pwd_hash})
                     print(f"[STARTUP] Created permanent super-admin '{uname}'")
                 else:
-                    u.role = "super_admin"
-                    u.hashed_password = pwd_hash
-                    u.is_active = True
-                    if hasattr(u, "is_locked"):
-                        u.is_locked = False
-                    if hasattr(u, "failed_login_count"):
-                        u.failed_login_count = 0
+                    conn.execute(text(
+                        "UPDATE users SET role='super_admin', hashed_password=:pw, is_active=1, "
+                        "is_locked=0, failed_login_count=0, locked_until=NULL "
+                        "WHERE username=:u"
+                    ), {"u": uname, "pw": pwd_hash})
                     print(f"[STARTUP] Verified permanent super-admin '{uname}'")
-            db.commit()
-        except Exception as err:
-            db.rollback()
-            print(f"[STARTUP] super-admin verification warning: {err}")
-        finally:
-            db.close()
+            conn.commit()
     except Exception as e:
-        print(f"[STARTUP] super-admin setup skipped: {e}")
+        import traceback
+        print(f"[STARTUP] super-admin setup error: {e}")
+        traceback.print_exc()
 
 
 @asynccontextmanager
@@ -604,6 +593,9 @@ app.add_middleware(
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
+    import traceback
+    print(f"[ERROR] {request.method} {request.url.path}: {exc}")
+    traceback.print_exc()
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
