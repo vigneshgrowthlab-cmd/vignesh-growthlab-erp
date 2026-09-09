@@ -1,0 +1,6 @@
+# Deployment artifacts run on Linux — force LF so Windows checkouts don't
+# introduce CRLF that breaks bash/systemd when copied to the server.
+*.sh            text eol=lf
+deploy/*.service text eol=lf
+deploy/*.conf    text eol=lf
+*.service        text eol=lf

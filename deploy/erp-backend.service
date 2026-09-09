@@ -1,0 +1,40 @@
+# Wholesale ERP — FastAPI backend (systemd unit)
+# Install as root:
+#   sudo cp deploy/erp-backend.service /etc/systemd/system/erp-backend.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now erp-backend
+#   sudo systemctl status erp-backend
+#   journalctl -u erp-backend -f      # live logs
+#
+# Paths assume SITE_USER=gtferp and APP cloned at /home/gtferp/GTF.
+# If your CloudPanel site user differs, edit User=, Group=, and all paths below.
+
+[Unit]
+Description=Wholesale ERP FastAPI backend (uvicorn)
+After=network.target mysql.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=gtferp
+Group=gtferp
+WorkingDirectory=/home/gtferp/GTF/backend
+
+# Run the per-worker _auto_migrate() ONCE, single-process, before the workers
+# fork — otherwise 4 workers race on hundreds of ALTER TABLEs at first boot.
+ExecStartPre=/home/gtferp/GTF/backend/venv/bin/python -c "from app.main import _auto_migrate; _auto_migrate()"
+
+ExecStart=/home/gtferp/GTF/backend/venv/bin/uvicorn app.main:app \
+    --host 127.0.0.1 --port 8000 --workers 4 --proxy-headers \
+    --forwarded-allow-ips=127.0.0.1
+
+Restart=always
+RestartSec=3
+TimeoutStartSec=120
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wholesale ERP — Module Workflows</title>
+<style>
+  :root { --bg:#0f1419; --card:#fff; --ink:#1a2230; --muted:#5b6b7b; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #eef1f5; color: #1a2230; line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(135deg,#1e3a5f,#2b6cb0); color:#fff;
+    padding: 28px 32px;
+  }
+  header h1 { margin: 0 0 6px; font-size: 26px; }
+  header p { margin: 0; opacity: .9; font-size: 14px; }
+  nav {
+    position: sticky; top: 0; z-index: 10; background:#fff;
+    border-bottom:1px solid #d9dee6; padding: 10px 32px; font-size: 13px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04); overflow-x:auto; white-space:nowrap;
+  }
+  nav a { color:#2b6cb0; text-decoration:none; margin-right:16px; }
+  nav a:hover { text-decoration:underline; }
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+  section {
+    background:#fff; border:1px solid #e2e7ee; border-radius:12px;
+    padding: 22px 26px; margin: 22px 0; box-shadow: 0 2px 10px rgba(20,40,80,.05);
+  }
+  section h2 { margin: 0 0 4px; font-size: 20px; color:#1e3a5f; }
+  .summary { font-size: 14.5px; color:#2d3748; margin: 8px 0 16px; }
+  .feeds {
+    font-size: 13px; color:#475569; background:#f5f7fa; border-left:3px solid #2b6cb0;
+    padding: 8px 12px; border-radius: 0 6px 6px 0; margin-top: 14px;
+  }
+  .diagram { overflow-x: auto; text-align:center; padding: 8px 0; }
+  .badge {
+    display:inline-block; background:#2b6cb0; color:#fff; font-size:12px;
+    font-weight:600; border-radius:10px; padding:2px 9px; margin-right:8px;
+  }
+  footer { text-align:center; color:#7b8794; font-size:12px; padding: 20px; }
+  @media print {
+    nav { display:none; } body { background:#fff; }
+    section { break-inside: avoid; box-shadow:none; border-color:#ccc; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Wholesale ERP — Module Workflows</h1>
+  <p>High-level flow of each of the 10 modules · rendered from the actual service/endpoint code · FastAPI + MariaDB · Indian GST context</p>
+</header>
+<nav>
+  <a href="#map">⬡ System Map</a>
+  <a href="#m1">1 · Security</a>
+  <a href="#m2">2 · Settings</a>
+  <a href="#m3">3 · Products</a>
+  <a href="#m4">4 · Purchase</a>
+  <a href="#m5">5 · Warehouse</a>
+  <a href="#m6">6 · Billing</a>
+  <a href="#m7">7 · Accounting</a>
+  <a href="#m8">8 · GST</a>
+  <a href="#m9">9 · Banking</a>
+  <a href="#m10">10 · Reports</a>
+</nav>
+<main>
+
+  <section id="map">
+    <h2>How the modules interconnect</h2>
+    <p class="summary">Transactional modules feed two shared backbones — <b>FIFO stock</b> (StockEntry / WarehouseStock) and <b>double-entry accounting</b> (journal_entries / journal_lines) — which GST, Banking, and Reports then read.</p>
+    <div class="diagram"><pre class="mermaid">
+flowchart LR
+    SET[Settings<br/>prefixes, sequences, GSTIN] --> PUR
+    SET --> BIL
+    SEC[Security / Auth<br/>JWT, page permissions] --> ALL[All modules]
+    PROD[Products & Inventory<br/>FIFO StockEntry] --> PUR[Purchase]
+    PUR -->|stock-in layer + cost| PROD
+    PUR -->|journal + vendor ledger| ACC[Accounting]
+    PROD --> WH[Warehouse<br/>transfer / adjust / writeoff]
+    WH -->|movements + loss journal| ACC
+    PROD -->|FIFO consume + COGS| BIL[Billing & Sales]
+    BIL -->|journal + customer ledger| ACC
+    BIL -->|invoice| GST[GST / E-Invoice / E-Way]
+    GST -->|IRN / QR / Ack| BIL
+    ACC --> REP[Reports & Dashboard]
+    BIL --> REP
+    PUR --> REP
+    PROD --> REP
+    ACC --> BANK[Banking<br/>stock statement + recon]
+    BIL --> BANK
+    </pre></div>
+  </section>
+
+  <section id="m1">
+    <h2><span class="badge">1</span>Security, Users &amp; Auth</h2>
+    <p class="summary">JWT login with account-lockout, access + refresh tokens, active sessions and login history. Admins manage the user lifecycle behind super-admin role gates; every privileged action is audited and a suspicious-activity scan flags repeated failed logins and bulk exports.</p>
+    <div class="diagram"><pre class="mermaid">
+flowchart TD
+    A[User submits username and password] --> B{Account locked?}
+    B -->|Yes and window active| C[Reject with lockout message]
+    B -->|No or expired| D{Password valid?}
+    D -->|No| E[Increment failed count and lock at threshold]
+    D -->|Yes| F[Reset failed count and issue access plus refresh tokens]
+    F --> G[Register ActiveSession and record LoginHistory]
+    G --> H[Authenticated requests via get_current_user]
+    H --> I{Admin action?}
+    I -->|Create or update user| J[UserService enforces super_admin role gate]
+    I -->|Reset password or suspend or force logout| K[Clear refresh token and delete ActiveSession]
+    K --> L[Record logout in LoginHistory]
+    J --> M[Write ActivityLog audit entry]
+    L --> M
+    M --> N[Admin views sessions login history and suspicious scan]
+    H --> O[Refresh token rotates new access token]
+    H --> P[Logout clears session and 2FA OTP verify issues tokens]
+    </pre></div>
+    <div class="feeds"><b>Triggers / feeds:</b> Self-contained auth/audit — no stock/journal/GST effects. Feeds page_permissions and warehouse_id consumed by every module for access control.</div>
+  </section>
+
+  <section id="m2">
+    <h2><span class="badge">2</span>Settings</h2>
+    <p class="summary">Admin-managed config hub: a single CompanySettings record (identity, GSTIN/state, bank/UPI, invoice prefixes, e-way threshold, bank-stock margin, FY start), invoice sequences, logo upload, and per-user page permissions. Reads open to all; writes admin-only.</p>
+    <div class="diagram"><pre class="mermaid">
+flowchart TD
+    A[Authenticated User] --> B{Admin?}
+    A --> C[Read Company Settings]
+    A --> D[Read Invoice Sequences]
+    A --> E[Read GST Rates Master]
+    A --> F[Read Indian States Master]
+    B -->|Yes| G[Update Company Settings]
+    B -->|Yes| H[Update Invoice Sequence]
+    B -->|Yes| I[Upload Company Logo]
+    B -->|Yes| J[Manage User Page Permissions]
+    G --> K[CompanySettings Row Upsert]
+    H --> L[InvoiceSequence prefix and last number]
+    I --> M[Save file to uploads logos]
+    M --> K
+    J --> N[User page_permissions JSON or NULL]
+    K --> O[Stamps prefixes thresholds bank FY]
+    L --> P[Feeds document numbering across modules]
+    N --> Q[Drives frontend page access control]
+    </pre></div>
+    <div class="feeds"><b>Triggers / feeds:</b> Config provider. Invoice prefixes/sequences feed Billing/Purchase/GST numbering; eway_threshold/state/GSTIN feed GST; bank_stock_margin feeds Banking; page_permissions drive Security/UI access.</div>
+  </section>
+
+  <section id="m3">
+    <h2><span class="badge">3</span>Products &amp; Inventory</h2>
+    <p class="summary">Category/product master with HSN/GST and category-prefixed part codes, a floor ≤ b2b ≤ b2c ≤ mrp price guard, and a versioned price-history engine (immediate or scheduled prices, below-cost/low-margin alerts, bulk updates). Stock tracked via FIFO StockEntry layers consumed in batch-date order.</p>
+    <div class="diagram"><pre class="mermaid">
+flowchart TD
+    A[Admin manages Category prefix HSN GST] --> B[Create Product with HSN GST and price tiers]
+    B --> Q{Price order valid floor le b2b le c2c le mrp and floor ge cost}
+    Q -->|No| R[Reject 400 ordering error]
+    Q -->|Yes| C[Generate part code from category counter]
+    C --> D[Record initial cost history]
+    B2[Edit or Bulk price update] --> E[Price History engine versioned product_prices]
+    E --> Q2{Effective date in future}
+    Q2 -->|Yes| F[Store scheduled inactive row]
+    Q2 -->|No| G[Activate update product column and fire below-cost low-margin alerts]
+    F --> H[activate_scheduled_prices on read or purchase]
+    H --> G
+    I[Stock In purchase adjustment opening] --> J[add_stock creates FIFO layer and bumps WarehouseStock]
+    K[Stock Out sale adjustment] --> L[consume_fifo by batch date reduces remaining_qty and WarehouseStock]
+    J --> M[Ageing and Stock Valuation FIFO vs latest cost]
+    L --> M
+    D --> N[Cost Trend and Margin reports per vendor]
+    </pre></div>
+    <div class="feeds"><b>Triggers / feeds:</b> Purchase calls add_stock/record_cost; Billing/Warehouse call consume_fifo (weighted-avg cost → COGS); HSN/gst_percent feed Billing and GST. No journals originate here.</div>
+  </section>
+
+  <section id="m4">
+    <h2><span class="badge">4</span>Purchase</h2>
+    <p class="summary">Vendors and inbound bills. Each line computes GST (CGST/SGST vs IGST), creates a FIFO StockEntry layer, updates product cost, and posts a double-entry journal plus vendor-ledger credit. Payments apply specific-first then advances FIFO. Cancel/void fully reverses — blocked if stock consumed or payments applied.</p>
+    <div class="diagram"><pre class="mermaid">
+flowchart TD
+    A[Create or Lookup Vendor] --> B[Derive State Code from GSTIN]
+    B --> C[Create Purchase Bill]
+    C --> Q{Duplicate Vendor Invoice?}
+    Q -->|Yes| R[Reject 409]
+    Q -->|No| D[Determine GST Type Intra or Inter State]
+    D --> E[Per Line Compute Taxable and GST]
+    E --> F[Add FIFO StockEntry Layer]
+    F --> G[Update Product Cost and Reprice Tiers]
+    G --> H[Post Vendor Ledger Credit]
+    H --> I[Post Journal Stock and GST ITC Debit Creditors Credit]
+    I --> J[Recompute Paid and Outstanding]
+    J --> K[Record Vendor Payment]
+    K --> L[Ledger Debit and Journal Creditors vs Cash Bank]
+    L --> M[Apply Payments and Advances FIFO]
+    C --> N[Cancel or Void Reverses Stock Journal Ledger]
+    </pre></div>
+    <div class="feeds"><b>Triggers / feeds:</b> Writes FIFO StockEntry consumed by Billing; posts journal (STOCK, GST_ITC, CREDITORS, CASH/BANK) to Accounting; updates Product cost/history; Cleartax GSTIN lookup for onboarding.</div>
+  </section>
+
+  <section id="m5">
+    <h2><span class="badge">5</span>Warehouse</h2>
+    <p class="summary">Warehouses plus four stock operations: DC-linked transfers (deduct source → add destination on confirm / restore on reject), in/out adjustments via FIFO, write-offs (pending → approved, consuming FIFO + loss journal), and opening stock (seeds StockEntry + ledger openings).</p>
+    <div class="diagram"><pre class="mermaid">
+flowchart TD
+    A[Warehouse Module] --> B[Manage Warehouse]
+    A --> C[Stock Transfer]
+    A --> D[Stock Adjustment]
+    A --> E[Stock Write-off]
+    A --> F[Opening Stock]
+    B --> B1{Has references?}
+    B1 -->|No| B2[Hard Delete]
+    B1 -->|Yes| B3[Obsolete soft-delete]
+    C --> C1[Create transfer linked to DCs]
+    C1 --> C2[Deduct source WarehouseStock]
+    C2 --> C3{Destination decision}
+    C3 -->|Confirm DC| C4[Add destination WarehouseStock mark delivered]
+    C3 -->|Reject DC| C5[Restore source stock mark rejected]
+    D --> D1{Adjustment type}
+    D1 -->|In| D2[Add StockEntry FIFO layer]
+    D1 -->|Out| D3[Consume FIFO]
+    E --> E1[Create pending write-off]
+    E1 --> E2{Approve?}
+    E2 -->|Yes| E3[Consume FIFO and post loss journal]
+    E2 -->|No| E4[Reject]
+    F --> F1[Seed StockEntry plus ledger openings]
+    </pre></div>
+    <div class="feeds"><b>Triggers / feeds:</b> Reads Billing DCs/Invoices for transfers; consumes Product FIFO; write-offs and openings post to Accounting journals + LedgerEntry. No GST calls.</div>
+  </section>
+
+  <section id="m6">
+    <h2><span class="badge">6</span>Billing &amp; Sales</h2>
+    <p class="summary">Customers (credit limits, GSTIN lookup, ledger) and sales documents (B2B/B2C invoices, quotations, delivery challans, credit notes). Invoices validate stock + credit, determine GST from warehouse vs shipping state, consume FIFO for COGS, post DR Debtors / CR Sales / CR GST Payable, then settle receipts oldest-first.</p>
+    <div class="diagram"><pre class="mermaid">
+flowchart TD
+    A[Manage Customer with GSTIN credit limit addresses] --> B[Create Sales Document]
+    B --> C{Document type?}
+    C -->|Quotation| D[Save quotation no stock no accounting]
+    C -->|Delivery Challan| E[Save DC validate stock only no FIFO no accounting]
+    C -->|B2B or B2C Invoice| F[Validate addresses stock and credit limit]
+    D -->|Convert| F
+    F --> G[Determine GST type from warehouse vs shipping state]
+    G --> H[Consume FIFO stock capture COGS cost per line]
+    H --> I[Compute taxable CGST SGST IGST and total]
+    I --> J[Post customer ledger debit and update outstanding]
+    J --> K[Post journal DR Debtors CR Sales CR GST Payable]
+    K --> L[Record Receipt]
+    L --> M[Apply payment FIFO oldest invoices first]
+    M --> N[Post receipt journal DR Cash or Bank CR Debtors]
+    F -->|Return goods| O[Create Credit Note reverse GST add stock back credit ledger]
+    </pre></div>
+    <div class="feeds"><b>Triggers / feeds:</b> Consumes StockEntry FIFO for COGS; posts journals to Accounting; GST output liability + invoices feed GST/E-Invoice and Reports; receipts touch CASH/BANK (Banking).</div>
+  </section>
+
+  <section id="m7">
+    <h2><span class="badge">7</span>Accounting</h2>
+    <p class="summary">Double-entry bookkeeping + treasury: cheque lifecycle (bounce reverses customer ledger), daily cash closing, threshold-approved expenses (DR Expenses / CR Cash-Bank), TDS &amp; Form 26AS reconciliation, receivables ageing with priority scoring, vendor due alerts, and read-only journal + trial balance.</p>
+    <div class="diagram"><pre class="mermaid">
+flowchart TD
+    A[Accountant or Admin] --> B{Action?}
+    B --> C[Record Cheque received]
+    C --> D[Deposit then Clear or Bounce]
+    D --> E{Bounced?}
+    E -->|Yes| F[Reverse Customer LedgerEntry debit]
+    B --> G[Create Expense]
+    G --> H{Amount over threshold?}
+    H -->|Yes| I[Pending Admin Approval]
+    H -->|No| J[Auto approved]
+    I --> J
+    J --> K[Post JournalEntry debit EXPENSES credit CASH or BANK]
+    B --> L[Cash Closing today]
+    L --> M[Opening plus cash Receipts minus approved cash Expenses then Approve]
+    B --> N[Record TDS or Import Form 26AS reconcile]
+    B --> O[View Customer Ageing buckets and priority]
+    B --> P[View Journal list and Trial Balance]
+    K --> P
+    </pre></div>
+    <div class="feeds"><b>Triggers / feeds:</b> Reads Billing receipts/outstanding and Purchase due dates; writes JournalEntry/JournalLine + Account postings consumed by Reports trial balance; reverses customer ledger on cheque bounce.</div>
+  </section>
+
+  <section id="m8">
+    <h2><span class="badge">8</span>GST / E-Invoice / E-Way Bill</h2>
+    <p class="summary">Cleartax integration. E-Invoice generates IRN + signed QR + Ack for a sales invoice (real API with retries, or deterministic mock when sandbox &amp; no token), persists them on the invoice, cancellable within 24h. E-Way Bill generated with transporter/vehicle/distance. GSTR-1 from outward invoices, GSTR-2B reconcile vs purchases, GSTR-3B summary.</p>
+    <div class="diagram"><pre class="mermaid">
+flowchart TD
+    A[GST Module] --> B[Manage Transporter and Vehicle masters]
+    A --> C[Generate E-Invoice for Sales Invoice]
+    C --> Q1{Invoice valid and no existing IRN?}
+    Q1 -->|No| R1[Reject cancelled or already generated]
+    Q1 -->|Yes| M1{Sandbox and no auth token?}
+    M1 -->|Yes| MOCK[Return deterministic MOCK IRN]
+    M1 -->|No| API[Call Cleartax with retries]
+    API --> S1{Success?}
+    S1 -->|No| F1[Mark failed store irn_error]
+    S1 -->|Yes| P1[Persist IRN signed QR Ack number and date on Invoice]
+    MOCK --> P1
+    P1 --> CAN[Cancel IRN within 24 hours with reason]
+    A --> EW[Generate E-Way Bill from Invoice]
+    EW --> EW1[Attach transporter vehicle and distance then call Cleartax or mock]
+    A --> G1[GSTR-1 from outward Invoices for period]
+    A --> G2[GSTR-2B reconcile imported supplier data vs Purchases]
+    A --> G3[GSTR-3B summary for period]
+    </pre></div>
+    <div class="feeds"><b>Triggers / feeds:</b> Reads Billing invoices for IRN/E-Way and GSTR-1; reads Purchases for GSTR-2B; writes IRN/QR/Ack back onto invoices; uses Settings GSTIN/state/threshold; external Cleartax (mocked in sandbox).</div>
+  </section>
+
+  <section id="m9">
+    <h2><span class="badge">9</span>Banking</h2>
+    <p class="summary">Bank Stock Statement (drawing-power certificate) values FIFO stock + outstanding debtors, derives drawing power vs CC limit, and locks the statement. Separate flow imports bank statement lines and auto-matches against LedgerEntry by amount/date into matched/unmatched buckets. Also manages email/scheduled-report/backup settings.</p>
+    <div class="diagram"><pre class="mermaid">
+flowchart TD
+    A[Admin or Accountant] --> B{Choose Banking Action}
+    B --> C[Generate Bank Stock Statement]
+    B --> D[Import Bank Statement Lines]
+    B --> E[Manage Notification Settings]
+    C --> F[Value FIFO Stock from StockEntry remaining qty]
+    C --> G[Sum Outstanding Debtors from open Invoices]
+    F --> H[Compute Total Value and Drawing Power vs CC Limit]
+    G --> H
+    H --> I[Persist Locked BankStockStatement with breakups]
+    D --> J[Load LedgerEntry rows for period]
+    J --> K[Auto Match by amount and date tolerance]
+    K --> L[Split into Matched Unmatched Bank Unmatched Books]
+    L --> M[Report Closing Balances and Difference]
+    E --> N[Save SMTP and alert flags to settings file]
+    N --> O[Send Test Email via SMTP]
+    </pre></div>
+    <div class="feeds"><b>Triggers / feeds:</b> Reads Inventory FIFO costs and Billing outstanding for valuation; reconciles against Accounting LedgerEntry; emits SMTP notifications. Read-only across modules.</div>
+  </section>
+
+  <section id="m10">
+    <h2><span class="badge">10</span>Reports &amp; Dashboard</h2>
+    <p class="summary">Read-only aggregation. The dashboard runs each metric in isolation (rollback on failure) for sales, receivables, payables, FIFO stock value, low-stock, cash and trends. Report services produce sales, purchase, stock valuation, P&amp;L, day-book and customer/vendor ledger views over date ranges and FY.</p>
+    <div class="diagram"><pre class="mermaid">
+flowchart TD
+    U[User requests report or dashboard] --> R[Reports and Dashboard routers]
+    R --> Q{Which view}
+    Q -->|Dashboard| D[DashboardService get_metrics per FY]
+    D --> SAFE[Run each metric isolated rollback on error]
+    SAFE --> AGG[Sales receivables payables stock value low stock cash trend]
+    Q -->|Sales report| SR[Aggregate Invoices by date and customer]
+    Q -->|Purchase report| PR[Aggregate Purchases by date and vendor]
+    Q -->|Stock report| ST[Sum WarehouseStock with FIFO StockEntry value]
+    Q -->|P and L| PL[Revenue minus FIFO COGS minus approved Expenses]
+    Q -->|Day book| DB[Combine sales purchases receipts expenses for a day]
+    Q -->|Ledger| LG[Customer or Vendor LedgerEntry running balance]
+    AGG --> OUT[JSON metrics and rows to UI]
+    SR --> OUT
+    PR --> OUT
+    ST --> OUT
+    PL --> OUT
+    DB --> OUT
+    LG --> OUT
+    </pre></div>
+    <div class="feeds"><b>Triggers / feeds:</b> Read-only consumer — aggregates Billing invoices/COGS, Purchases, FIFO stock, Accounting expenses/cash-closing, LedgerEntry, vendor outstanding. No side effects.</div>
+  </section>
+
+</main>
+<footer>Generated from the live ERP codebase · open in any browser · use your browser's Print → Save as PDF to export</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, theme: 'default', flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' }, securityLevel: 'loose' });
+</script>
+</body>
+</html>

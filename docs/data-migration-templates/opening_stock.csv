@@ -1,0 +1,3 @@
+part_code,warehouse_name,quantity,unit_cost,opening_date
+GTY00001,Main Warehouse,100,120.00,2025-04-01
+GTY00002,Main Warehouse,50,200.00,2025-04-01

@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    background-color: #f8fafc;
+    color: #1e293b;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+@layer components {
+
+  /* ── Page Layout ── */
+  .page-header {
+    @apply flex items-center justify-between mb-6;
+  }
+  .page-title {
+    @apply text-2xl font-bold text-gray-900;
+  }
+  .breadcrumb {
+    @apply text-xs text-gray-400 mb-1;
+  }
+
+  /* ── Cards ── */
+  .card {
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden;
+  }
+  .card-header {
+    @apply px-4 py-3 border-b border-gray-100 bg-gray-50;
+  }
+  .card-body {
+    @apply p-4;
+  }
+
+  /* ── Stat Cards ── */
+  .stat-card {
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm p-4;
+  }
+  .stat-label {
+    @apply text-xs font-medium text-gray-500 uppercase tracking-wide;
+  }
+  .stat-value {
+    @apply text-2xl font-bold text-gray-900 mt-1;
+  }
+
+  /* ── Tables ── */
+  .table {
+    @apply w-full text-sm;
+  }
+  .table thead tr {
+    @apply border-b border-gray-200 bg-gray-50;
+  }
+  .table th {
+    @apply px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide;
+  }
+  .table tbody tr {
+    @apply border-b border-gray-100 hover:bg-gray-50 transition-colors;
+  }
+  .table td {
+    @apply px-4 py-3 text-gray-700;
+  }
+
+  /* ── Form Elements ── */
+  .label {
+    @apply block text-xs font-medium text-gray-600 mb-1;
+  }
+  .textarea {
+    @apply w-full px-3 py-2 rounded-lg border border-gray-300 text-sm text-gray-800
+           bg-white placeholder-gray-400 resize-none
+           focus:outline-none focus:ring-2 focus:border-blue-500 transition-colors;
+  }
+
+  /* ── Form Sections ── */
+  .form-section {
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden;
+  }
+  .form-section-header {
+    @apply px-4 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between;
+  }
+  .form-section-title {
+    @apply text-sm font-semibold text-gray-700;
+  }
+  .form-section-body {
+    @apply p-4;
+  }
+  .form-grid-2 {
+    @apply grid grid-cols-2 gap-4;
+  }
+  .form-grid-3 {
+    @apply grid grid-cols-3 gap-4;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar-link {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+           text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer;
+  }
+  .sidebar-link-active {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium
+           bg-blue-50 text-blue-700 cursor-pointer;
+  }
+
+  /* ── Color Utilities ── */
+  .text-primary {
+    @apply text-blue-700;
+  }
+  .text-success {
+    @apply text-green-600;
+  }
+  .text-danger {
+    @apply text-red-600;
+  }
+  .text-warning {
+    @apply text-amber-600;
+  }
+  .bg-primary {
+    @apply bg-blue-600;
+  }
+  .bg-primary-light {
+    @apply bg-blue-50;
+  }
+  .border-primary {
+    @apply border-blue-600;
+  }
+
+}
