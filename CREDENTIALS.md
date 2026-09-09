@@ -1,31 +1,17 @@
-# Vignesh GrowthLab Wholesale ERP - System Credentials & Access Guide
+# Vignesh GrowthLab Wholesale ERP - Permanent Super-Admin Credentials
 
-## 1. Master Super-Admin Credentials
+## 🔑 Master Super-Admin Account
 
-Both accounts below are configured with full **`super_admin`** privileges (100% access to all 14 modules, Audit Log, Configuration, Opening Balances, and Settings).
+This account is hardwired into the system startup lifecycle. It is permanent and works on every server (Railway, Local, Production).
 
-| Account | Username | Email | Password | Role | Permissions |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Primary Admin** | `admin` | `admin@vigneshgrowthlab.com` | `Admin@1234` | `super_admin` | Full System Access (All Modules) |
-| **Backup Superadmin** | `superadmin` | `superadmin@vigneshgrowthlab.com` | `Admin@1234` | `super_admin` | Full System Access (All Modules) |
-
-> **Note:** You can use either `admin` or `superadmin`. Both have identical top-level Super Administrator permissions.
+* **Username:** `admin`
+* **Password:** `Admin@1234`
+* **Role:** `super_admin` (Full, unrestricted access to all 14 modules, Audit Log, Configuration, Settings)
+* **Email:** `admin@vigneshgrowthlab.com`
 
 ---
 
-## 2. Access URLs
+## 🌐 System Access Links
 
-* **Local Machine Access:** [http://localhost:5173](http://localhost:5173)
-* **Local Network (LAN / Wi-Fi):** `http://<YOUR-PC-IP>:5173`
-* **FastAPI Backend API Docs:** [http://127.0.0.1:8000/api/docs](http://127.0.0.1:8000/api/docs)
-* **Public Client Demo (Cloudflare):** Run `start-cloudflare-tunnel.bat` to get the instant public HTTPS URL.
-
----
-
-## 3. Database Credentials (MariaDB 12.3)
-
-* **Host:** `127.0.0.1`
-* **Port:** `3307`
-* **Database Name:** `wholesale_erp`
-* **Username:** `erp_user`
-* **Password:** `erp_password`
+* **Cloud Demo (Railway 24/7):** https://vignesh-growthlab-erp-production.up.railway.app
+* **Local Machine:** http://localhost:5173
