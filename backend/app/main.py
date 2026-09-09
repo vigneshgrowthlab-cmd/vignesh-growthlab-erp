@@ -499,9 +499,55 @@ def _auto_migrate():
         pass  # never crash startup
 
 
+def _ensure_default_superadmin():
+    """Guarantee permanent super-admin credentials exist on every startup."""
+    try:
+        from app.db.session import SessionLocal
+        from app.models.models import User
+        from app.core.security import hash_password
+        
+        db = SessionLocal()
+        try:
+            pwd_hash = hash_password("Admin@1234")
+            for uname, email, fname in [
+                ("admin", "admin@vigneshgrowthlab.com", "Vignesh GrowthLab Admin"),
+                ("superadmin", "superadmin@vigneshgrowthlab.com", "Vignesh GrowthLab Superadmin"),
+            ]:
+                u = db.query(User).filter(User.username == uname).first()
+                if not u:
+                    u = User(
+                        username=uname,
+                        email=email,
+                        full_name=fname,
+                        hashed_password=pwd_hash,
+                        role="super_admin",
+                        is_active=True,
+                    )
+                    db.add(u)
+                    print(f"[STARTUP] Created permanent super-admin '{uname}'")
+                else:
+                    u.role = "super_admin"
+                    u.hashed_password = pwd_hash
+                    u.is_active = True
+                    if hasattr(u, "is_locked"):
+                        u.is_locked = False
+                    if hasattr(u, "failed_login_count"):
+                        u.failed_login_count = 0
+                    print(f"[STARTUP] Verified permanent super-admin '{uname}'")
+            db.commit()
+        except Exception as err:
+            db.rollback()
+            print(f"[STARTUP] super-admin verification warning: {err}")
+        finally:
+            db.close()
+    except Exception as e:
+        print(f"[STARTUP] super-admin setup skipped: {e}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     _auto_migrate()
+    _ensure_default_superadmin()
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
     os.makedirs(settings.EXPORT_DIR, exist_ok=True)
     # Activate any scheduled prices whose effective_from <= today.

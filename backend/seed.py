@@ -93,20 +93,27 @@ with engine.connect() as c:
         print("  ERR warehouse: " + str(e))
 
     # Super-Admin User
-    print("\n-- Super-Admin User --")
+    print("\n-- Super-Admin Users --")
     try:
-        existing = c.execute(text("SELECT id FROM users WHERE username='superadmin'")).fetchone()
-        if not existing:
-            import bcrypt
-            pw = bcrypt.hashpw(b"Admin@1234", bcrypt.gensalt()).decode()
-            c.execute(text(
-                "INSERT INTO users (username, email, full_name, hashed_password, role, is_active) "
-                "VALUES ('superadmin', 'superadmin@company.com', 'Super Administrator', :pw, 'super_admin', 1)"
-            ), {"pw": pw})
-            c.commit()
-            print("  OK: Super-admin user created (superadmin / Admin@1234)")
-        else:
-            print("  OK: Super-admin user already exists")
+        import bcrypt
+        pw = bcrypt.hashpw(b"Admin@1234", bcrypt.gensalt()).decode()
+        for uname, email, fname in [
+            ("admin", "admin@vigneshgrowthlab.com", "Vignesh GrowthLab Admin"),
+            ("superadmin", "superadmin@vigneshgrowthlab.com", "Vignesh GrowthLab Superadmin"),
+        ]:
+            existing = c.execute(text("SELECT id FROM users WHERE username=:u"), {"u": uname}).fetchone()
+            if not existing:
+                c.execute(text(
+                    "INSERT INTO users (username, email, full_name, hashed_password, role, is_active) "
+                    "VALUES (:u, :e, :fn, :pw, 'super_admin', 1)"
+                ), {"u": uname, "e": email, "fn": fname, "pw": pw})
+                print(f"  OK: Super-admin user created ({uname} / Admin@1234)")
+            else:
+                c.execute(text(
+                    "UPDATE users SET role='super_admin', hashed_password=:pw, is_active=1 WHERE username=:u"
+                ), {"u": uname, "pw": pw})
+                print(f"  OK: Super-admin user verified/updated ({uname} / Admin@1234)")
+        c.commit()
     except Exception as e:
         print("  ERR super-admin user: " + str(e))
 
