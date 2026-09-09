@@ -594,9 +594,10 @@ app.add_middleware(
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     import traceback
-    print(f"[ERROR] {request.method} {request.url.path}: {exc}")
+    err_str = f"{type(exc).__name__}: {str(exc)}"
+    print(f"[ERROR] {request.method} {request.url.path}: {err_str}")
     traceback.print_exc()
-    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+    return JSONResponse(status_code=500, content={"detail": err_str})
 
 
 app.include_router(api_router)
@@ -609,7 +610,27 @@ app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads"
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "version": settings.APP_VERSION}
+    import re
+    from sqlalchemy import text
+    from app.db.session import engine, db_url
+    safe_url = re.sub(r':([^@]+)@', ':***@', db_url) if db_url else "None"
+    db_status = "unknown"
+    db_err = None
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        db_status = "connected"
+    except Exception as e:
+        db_status = "failed"
+        db_err = f"{type(e).__name__}: {str(e)}"
+    return {
+        "status": "ok",
+        "version": settings.APP_VERSION,
+        "database": db_status,
+        "database_url": safe_url,
+        "database_error": db_err,
+        "env_keys": sorted([k for k in os.environ.keys() if any(x in k.upper() for x in ("SQL", "DATA", "PORT", "URL", "HOST"))]),
+    }
 
 
 # Serve frontend static assets & SPA fallback (production / Railway)
