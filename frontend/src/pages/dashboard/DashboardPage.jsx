@@ -36,15 +36,15 @@ function MetricCard({ label, value, sub, icon: Icon, color = 'blue', trend, onCl
   }
   return (
     <div onClick={onClick}
-      className={clsx('card p-4 flex gap-4 items-start',
+      className={clsx('card p-3 sm:p-4 flex gap-2.5 sm:gap-4 items-start',
         onClick && 'cursor-pointer hover:shadow-md transition-shadow')}>
-      <div className={clsx('w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0', colors[color])}>
+      <div className={clsx('w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0', colors[color])}>
         <Icon size={18} />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-xs text-gray-500 mb-0.5">{label}</div>
-        <div className="text-xl font-bold text-gray-900 truncate">{value}</div>
-        {sub && <div className="text-xs text-gray-400 mt-0.5">{sub}</div>}
+        <div className="text-xs text-gray-500 mb-0.5 truncate">{label}</div>
+        <div className="text-lg sm:text-xl font-bold text-gray-900 truncate">{value}</div>
+        {sub && <div className="text-[11px] sm:text-xs text-gray-400 mt-0.5 truncate">{sub}</div>}
       </div>
       {trend !== undefined && (
         <div className={clsx('flex items-center gap-0.5 text-xs font-medium mt-1',
@@ -193,7 +193,7 @@ export default function DashboardPage() {
       <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
         Sales · FY {fy}
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mb-5">
         <MetricCard
           label="Today's Sales"
           value={fmt(d.today_sales || 0)}
@@ -232,7 +232,7 @@ export default function DashboardPage() {
       <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
         Live position · current, not FY-bound
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mb-5">
         <MetricCard
           label="Outstanding Receivables"
           value={fmt(d.total_outstanding || 0)}
@@ -271,7 +271,7 @@ export default function DashboardPage() {
       <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
         Operations · live
       </div>
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3 mb-4">
         <MetricCard
           label="Low Stock Items"
           value={d.low_stock_count || 0}
@@ -299,7 +299,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Charts + Tables row */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
 
         {/* Sales trend */}
         <div className="card p-4">
