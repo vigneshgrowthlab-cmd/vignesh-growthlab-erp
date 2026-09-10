@@ -210,7 +210,7 @@ export default function CustomersPage() {
           <h1 className="page-title">Customers</h1>
         </div>
         {canManage && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {isAdmin() && (
               <Button variant="secondary" onClick={() => setImportOpen(true)}>
                 <Upload size={14} /> Import CSV
@@ -237,7 +237,7 @@ export default function CustomersPage() {
       )}
 
       <div className="card mb-4">
-        <div className="p-4 flex items-center gap-3">
+        <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="relative flex-1">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <Input placeholder="Search by name or GSTIN..."
@@ -247,7 +247,7 @@ export default function CustomersPage() {
           <select
             value={String(statusActive)}
             onChange={e => { setStatusActive(e.target.value === 'true'); setPage(1); clearSelection() }}
-            className="w-32 h-9 px-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:border-blue-500">
+            className="w-full sm:w-32 h-9 px-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:border-blue-500">
             <option value="true">Active</option>
             <option value="false">Inactive</option>
           </select>
@@ -373,7 +373,7 @@ export default function CustomersPage() {
       </div>
 
       {data && (
-        <div className="mt-4 grid grid-cols-3 gap-3">
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
           <div className="stat-card">
             <div className="stat-label">Total Customers</div>
             <div className="stat-value">{data.total}</div>

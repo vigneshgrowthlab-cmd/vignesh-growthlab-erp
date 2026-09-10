@@ -151,7 +151,7 @@ function SalesReport() {
 
   return (
     <div>
-      <div className="grid grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <Field label="From"><Input type="date" value={params.date_from} onChange={e => setParams(p => ({ ...p, date_from: e.target.value }))} /></Field>
         <Field label="To"><Input type="date" value={params.date_to} onChange={e => setParams(p => ({ ...p, date_to: e.target.value }))} /></Field>
         <Field label="Financial Year">
@@ -171,35 +171,37 @@ function SalesReport() {
       {isLoading && <div className="flex justify-center py-8"><Spinner size={24} /></div>}
       {data && (
         <>
-          <div className="grid grid-cols-4 gap-3 mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
             <SummaryCard label="Total Invoices" value={data.invoice_count} />
             <SummaryCard label="Taxable Value" value={fmt(data.summary?.total_taxable)} color="blue" />
             <SummaryCard label="Total Tax" value={fmt(data.summary?.total_tax)} />
             <SummaryCard label="Total Amount" value={fmt(data.summary?.total_amount)} color="green" />
           </div>
-          <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4">
             <SummaryCard label="Amount Collected" value={fmt(data.summary?.total_collected)} color="green" />
             <SummaryCard label="Outstanding" value={fmt(data.summary?.total_outstanding)} color="red" />
           </div>
           {data.rows.length === 0 ? <Empty message="No sales for this period" /> : (
-            <table className="table">
-              <thead><tr><th>Invoice No.</th><th>Date</th><th>Customer</th><th>Type</th><th className="text-right">Taxable</th><th className="text-right">Tax</th><th className="text-right">Total</th><th className="text-right">Outstanding</th><th>IRN</th></tr></thead>
-              <tbody>
-                {data.rows.map((row, i) => (
-                  <tr key={i}>
-                    <td className="font-mono text-xs font-semibold">{row.invoice_number}</td>
-                    <td className="text-gray-500 text-xs">{row.invoice_date ? format(new Date(row.invoice_date), 'dd/MM/yy') : '—'}</td>
-                    <td className="font-medium text-sm">{row.customer_name}</td>
-                    <td><Badge color={row.document_type === 'b2b_invoice' ? 'blue' : 'gray'}>{row.document_type === 'b2b_invoice' ? 'B2B' : 'B2C'}</Badge></td>
-                    <td className="text-right text-sm">₹{Number(row.taxable_amount).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
-                    <td className="text-right text-sm text-gray-500">₹{(Number(row.total_cgst) + Number(row.total_sgst) + Number(row.total_igst)).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
-                    <td className="text-right font-semibold">₹{Number(row.total_amount).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
-                    <td className="text-right"><span className={Number(row.outstanding_amount) > 0 ? 'text-danger font-medium' : 'text-success'}>₹{Number(row.outstanding_amount).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</span></td>
-                    <td>{row.irn ? <Badge color="green">✓</Badge> : '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table className="table">
+                <thead><tr><th>Invoice No.</th><th>Date</th><th>Customer</th><th>Type</th><th className="text-right">Taxable</th><th className="text-right">Tax</th><th className="text-right">Total</th><th className="text-right">Outstanding</th><th>IRN</th></tr></thead>
+                <tbody>
+                  {data.rows.map((row, i) => (
+                    <tr key={i}>
+                      <td className="font-mono text-xs font-semibold">{row.invoice_number}</td>
+                      <td className="text-gray-500 text-xs">{row.invoice_date ? format(new Date(row.invoice_date), 'dd/MM/yy') : '—'}</td>
+                      <td className="font-medium text-sm">{row.customer_name}</td>
+                      <td><Badge color={row.document_type === 'b2b_invoice' ? 'blue' : 'gray'}>{row.document_type === 'b2b_invoice' ? 'B2B' : 'B2C'}</Badge></td>
+                      <td className="text-right text-sm">₹{Number(row.taxable_amount).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
+                      <td className="text-right text-sm text-gray-500">₹{(Number(row.total_cgst) + Number(row.total_sgst) + Number(row.total_igst)).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
+                      <td className="text-right font-semibold">₹{Number(row.total_amount).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
+                      <td className="text-right"><span className={Number(row.outstanding_amount) > 0 ? 'text-danger font-medium' : 'text-success'}>₹{Number(row.outstanding_amount).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</span></td>
+                      <td>{row.irn ? <Badge color="green">✓</Badge> : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </>
       )}
@@ -231,7 +233,7 @@ function PurchaseReport() {
 
   return (
     <div>
-      <div className="grid grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <Field label="From"><Input type="date" value={params.date_from} onChange={e => setParams(p => ({ ...p, date_from: e.target.value }))} /></Field>
         <Field label="To"><Input type="date" value={params.date_to} onChange={e => setParams(p => ({ ...p, date_to: e.target.value }))} /></Field>
         <div className="flex items-end gap-2">
@@ -246,28 +248,30 @@ function PurchaseReport() {
       {isLoading && <div className="flex justify-center py-8"><Spinner size={24} /></div>}
       {data && (
         <>
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-4">
             <SummaryCard label="Total Entries" value={data.purchase_count} />
             <SummaryCard label="Taxable Value" value={fmt(data.summary?.total_taxable)} color="blue" />
             <SummaryCard label="Total Amount" value={fmt(data.summary?.total_amount)} color="green" />
           </div>
           {data.rows.length === 0 ? <Empty message="No purchases for this period" /> : (
-            <table className="table">
-              <thead><tr><th>Vendor Invoice No.</th><th>Date</th><th>Vendor</th><th>GST Type</th><th className="text-right">Taxable</th><th className="text-right">Tax</th><th className="text-right">Total</th></tr></thead>
-              <tbody>
-                {data.rows.map((row, i) => (
-                  <tr key={i}>
-                    <td className="font-mono text-xs font-semibold">{row.vendor_invoice_number}</td>
-                    <td className="text-gray-500 text-xs">{row.invoice_date ? format(new Date(row.invoice_date), 'dd/MM/yy') : '—'}</td>
-                    <td className="font-medium text-sm">{row.vendor_name}</td>
-                    <td><Badge color={row.gst_type === 'cgst_sgst' ? 'blue' : 'amber'}>{row.gst_type === 'cgst_sgst' ? 'CGST+SGST' : 'IGST'}</Badge></td>
-                    <td className="text-right">₹{Number(row.subtotal).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
-                    <td className="text-right text-gray-500">₹{(Number(row.total_cgst) + Number(row.total_sgst) + Number(row.total_igst)).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
-                    <td className="text-right font-semibold">₹{Number(row.total_amount).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table className="table">
+                <thead><tr><th>Vendor Invoice No.</th><th>Date</th><th>Vendor</th><th>GST Type</th><th className="text-right">Taxable</th><th className="text-right">Tax</th><th className="text-right">Total</th></tr></thead>
+                <tbody>
+                  {data.rows.map((row, i) => (
+                    <tr key={i}>
+                      <td className="font-mono text-xs font-semibold">{row.vendor_invoice_number}</td>
+                      <td className="text-gray-500 text-xs">{row.invoice_date ? format(new Date(row.invoice_date), 'dd/MM/yy') : '—'}</td>
+                      <td className="font-medium text-sm">{row.vendor_name}</td>
+                      <td><Badge color={row.gst_type === 'cgst_sgst' ? 'blue' : 'amber'}>{row.gst_type === 'cgst_sgst' ? 'CGST+SGST' : 'IGST'}</Badge></td>
+                      <td className="text-right">₹{Number(row.subtotal).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
+                      <td className="text-right text-gray-500">₹{(Number(row.total_cgst) + Number(row.total_sgst) + Number(row.total_igst)).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
+                      <td className="text-right font-semibold">₹{Number(row.total_amount).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </>
       )}
@@ -298,7 +302,7 @@ function StockReport() {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-3 flex-wrap mb-4">
         <label className="flex items-center gap-2 text-sm cursor-pointer">
           <input type="checkbox" checked={lowStock} onChange={e => setLowStock(e.target.checked)} className="rounded" />
           Low stock items only
@@ -319,29 +323,31 @@ function StockReport() {
       {isLoading && <div className="flex justify-center py-8"><Spinner size={24} /></div>}
       {data && (
         <>
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-4">
             <SummaryCard label="Total Products" value={data.product_count} />
             <SummaryCard label="Low Stock Items" value={data.low_stock_count} color="red" />
             <SummaryCard label="Total Stock Value (FIFO)" value={fmt(data.total_stock_value)} color="blue" />
           </div>
           <div className="text-xs text-gray-400 mb-2">As of {data.as_of_date ? format(new Date(data.as_of_date), 'dd MMM yyyy') : '—'}</div>
           {data.rows.length === 0 ? <Empty message="No stock records" /> : (
-            <table className="table">
-              <thead><tr><th>Part Code</th><th>Product</th><th>Category</th><th>UOM</th><th className="text-right">Total Qty</th><th className="text-right">FIFO Value</th><th>Status</th></tr></thead>
-              <tbody>
-                {data.rows.map((row, i) => (
-                  <tr key={i} className={row.is_low_stock ? 'bg-red-50/30' : ''}>
-                    <td className="font-mono text-xs">{row.part_code}</td>
-                    <td className="font-medium text-sm">{row.part_name}</td>
-                    <td className="text-gray-500 text-sm">{row.category_name || '—'}</td>
-                    <td className="text-gray-500 text-xs">{row.unit_of_measure}</td>
-                    <td className="text-right font-medium">{Number(row.total_quantity).toFixed(3)}</td>
-                    <td className="text-right font-medium">₹{Number(row.total_fifo_value).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
-                    <td>{row.is_low_stock ? <Badge color="red">Low Stock</Badge> : <Badge color="green">Normal</Badge>}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table className="table">
+                <thead><tr><th>Part Code</th><th>Product</th><th>Category</th><th>UOM</th><th className="text-right">Total Qty</th><th className="text-right">FIFO Value</th><th>Status</th></tr></thead>
+                <tbody>
+                  {data.rows.map((row, i) => (
+                    <tr key={i} className={row.is_low_stock ? 'bg-red-50/30' : ''}>
+                      <td className="font-mono text-xs">{row.part_code}</td>
+                      <td className="font-medium text-sm">{row.part_name}</td>
+                      <td className="text-gray-500 text-sm">{row.category_name || '—'}</td>
+                      <td className="text-gray-500 text-xs">{row.unit_of_measure}</td>
+                      <td className="text-right font-medium">{Number(row.total_quantity).toFixed(3)}</td>
+                      <td className="text-right font-medium">₹{Number(row.total_fifo_value).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
+                      <td>{row.is_low_stock ? <Badge color="red">Low Stock</Badge> : <Badge color="green">Normal</Badge>}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </>
       )}
@@ -418,7 +424,7 @@ function ClearanceReport() {
       {isLoading && <div className="flex justify-center py-8"><Spinner size={24} /></div>}
       {data && (
         <>
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-4">
             <SummaryCard label="Batches" value={data.batch_count} />
             <SummaryCard label="Products" value={data.product_count} color="blue" />
             <SummaryCard label="Stock at Cost" value={fmt(data.total_stock_value)} color="amber" />
@@ -611,11 +617,11 @@ function DayBookReport() {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-4">
-        <Field label="Date"><Input type="date" value={forDate} onChange={e => setForDate(e.target.value)} className="w-48" /></Field>
-        <div className="mt-5"><Button variant="primary" onClick={() => setRun(true)}>Generate Day Book</Button></div>
+      <div className="flex flex-wrap items-end gap-3 mb-4">
+        <Field label="Date"><Input type="date" value={forDate} onChange={e => setForDate(e.target.value)} className="w-full sm:w-48" /></Field>
+        <div><Button variant="primary" onClick={() => setRun(true)}>Generate Day Book</Button></div>
         {data && (
-          <div className="mt-5">
+          <div>
             <DlBar
               onCSV={() => downloadCSV(data.entries, COLS, `daybook_${forDate}`)}
               onPDF={() => downloadPDF(`Day Book — ${forDate}`, COLS,
@@ -628,32 +634,34 @@ function DayBookReport() {
       {isLoading && <div className="flex justify-center py-8"><Spinner size={24} /></div>}
       {data && (
         <>
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-4">
             <SummaryCard label="Total Entries" value={data.entry_count} />
             <SummaryCard label="Total Debits" value={fmt(data.total_debit)} color="blue" />
             <SummaryCard label="Total Credits" value={fmt(data.total_credit)} color="green" />
           </div>
           {data.entries.length === 0 ? <Empty message="No entries for this date" /> : (
-            <table className="table">
-              <thead><tr><th>Type</th><th>Reference</th><th>Party</th><th>Description</th><th className="text-right">Debit (₹)</th><th className="text-right">Credit (₹)</th></tr></thead>
-              <tbody>
-                {data.entries.map((e, i) => (
-                  <tr key={i}>
-                    <td><Badge color={TYPE_COLORS[e.type] || 'gray'}>{e.type}</Badge></td>
-                    <td className="font-mono text-xs">{e.reference}</td>
-                    <td className="text-sm font-medium">{e.party}</td>
-                    <td className="text-sm text-gray-600">{e.narration}</td>
-                    <td className="text-right">{e.debit > 0 ? fmt(e.debit) : '—'}</td>
-                    <td className="text-right">{e.credit > 0 ? fmt(e.credit) : '—'}</td>
+            <div className="overflow-x-auto">
+              <table className="table">
+                <thead><tr><th>Type</th><th>Reference</th><th>Party</th><th>Description</th><th className="text-right">Debit (₹)</th><th className="text-right">Credit (₹)</th></tr></thead>
+                <tbody>
+                  {data.entries.map((e, i) => (
+                    <tr key={i}>
+                      <td><Badge color={TYPE_COLORS[e.type] || 'gray'}>{e.type}</Badge></td>
+                      <td className="font-mono text-xs">{e.reference}</td>
+                      <td className="text-sm font-medium">{e.party}</td>
+                      <td className="text-sm text-gray-600">{e.narration}</td>
+                      <td className="text-right">{e.debit > 0 ? fmt(e.debit) : '—'}</td>
+                      <td className="text-right">{e.credit > 0 ? fmt(e.credit) : '—'}</td>
+                    </tr>
+                  ))}
+                  <tr className="font-semibold bg-gray-50">
+                    <td colSpan={4} className="text-right text-gray-600">TOTAL</td>
+                    <td className="text-right text-primary">{fmt(data.total_debit)}</td>
+                    <td className="text-right text-success">{fmt(data.total_credit)}</td>
                   </tr>
-                ))}
-                <tr className="font-semibold bg-gray-50">
-                  <td colSpan={4} className="text-right text-gray-600">TOTAL</td>
-                  <td className="text-right text-primary">{fmt(data.total_debit)}</td>
-                  <td className="text-right text-success">{fmt(data.total_credit)}</td>
-                </tr>
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </div>
           )}
         </>
       )}
@@ -680,7 +688,7 @@ function CustomerLedgerReport() {
 
   return (
     <div>
-      <div className="grid grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <Field label="Customer" required>
           <Select value={customerId} onChange={e => setCustomerId(e.target.value)}>
             <option value="">Select customer...</option>
@@ -716,26 +724,28 @@ function CustomerLedgerReport() {
             </div>
           </div>
           {data.rows.length === 0 ? <Empty message="No ledger entries for this period" /> : (
-            <table className="table">
-              <thead><tr><th>Date</th><th>Narration</th><th className="text-right">Debit (₹)</th><th className="text-right">Credit (₹)</th><th className="text-right">Balance (₹)</th></tr></thead>
-              <tbody>
-                <tr className="bg-gray-50 font-medium">
-                  <td>{dateFrom ? format(new Date(dateFrom), 'dd MMM yyyy') : '—'}</td>
-                  <td className="text-gray-500 italic">Opening Balance</td>
-                  <td colSpan={2}></td>
-                  <td className="text-right">{fmt(data.opening_balance)}</td>
-                </tr>
-                {data.rows.map((row, i) => (
-                  <tr key={i}>
-                    <td className="text-gray-500 text-xs">{row.date ? format(new Date(row.date), 'dd MMM yyyy') : '—'}</td>
-                    <td className="text-sm">{row.narration}</td>
-                    <td className="text-right text-sm">{row.debit > 0 ? fmt(row.debit) : '—'}</td>
-                    <td className="text-right text-sm text-success">{row.credit > 0 ? fmt(row.credit) : '—'}</td>
-                    <td className="text-right font-medium">{fmt(row.balance)}</td>
+            <div className="overflow-x-auto">
+              <table className="table">
+                <thead><tr><th>Date</th><th>Narration</th><th className="text-right">Debit (₹)</th><th className="text-right">Credit (₹)</th><th className="text-right">Balance (₹)</th></tr></thead>
+                <tbody>
+                  <tr className="bg-gray-50 font-medium">
+                    <td>{dateFrom ? format(new Date(dateFrom), 'dd MMM yyyy') : '—'}</td>
+                    <td className="text-gray-500 italic">Opening Balance</td>
+                    <td colSpan={2}></td>
+                    <td className="text-right">{fmt(data.opening_balance)}</td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                  {data.rows.map((row, i) => (
+                    <tr key={i}>
+                      <td className="text-gray-500 text-xs">{row.date ? format(new Date(row.date), 'dd MMM yyyy') : '—'}</td>
+                      <td className="text-sm">{row.narration}</td>
+                      <td className="text-right text-sm">{row.debit > 0 ? fmt(row.debit) : '—'}</td>
+                      <td className="text-right text-sm text-success">{row.credit > 0 ? fmt(row.credit) : '—'}</td>
+                      <td className="text-right font-medium">{fmt(row.balance)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </>
       )}
@@ -762,7 +772,7 @@ function VendorLedgerReport() {
 
   return (
     <div>
-      <div className="grid grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <Field label="Vendor" required>
           <Select value={vendorId} onChange={e => setVendorId(e.target.value)}>
             <option value="">Select vendor...</option>
@@ -798,26 +808,28 @@ function VendorLedgerReport() {
             </div>
           </div>
           {data.rows.length === 0 ? <Empty message="No ledger entries for this period" /> : (
-            <table className="table">
-              <thead><tr><th>Date</th><th>Narration</th><th className="text-right">Debit (₹)</th><th className="text-right">Credit (₹)</th><th className="text-right">Balance (₹)</th></tr></thead>
-              <tbody>
-                <tr className="bg-gray-50 font-medium">
-                  <td>{dateFrom ? format(new Date(dateFrom), 'dd MMM yyyy') : '—'}</td>
-                  <td className="text-gray-500 italic">Opening Balance</td>
-                  <td colSpan={2}></td>
-                  <td className="text-right">{fmt(data.opening_balance)}</td>
-                </tr>
-                {data.rows.map((row, i) => (
-                  <tr key={i}>
-                    <td className="text-gray-500 text-xs">{row.date ? format(new Date(row.date), 'dd MMM yyyy') : '—'}</td>
-                    <td className="text-sm">{row.narration}</td>
-                    <td className="text-right text-sm">{row.debit > 0 ? fmt(row.debit) : '—'}</td>
-                    <td className="text-right text-sm text-danger">{row.credit > 0 ? fmt(row.credit) : '—'}</td>
-                    <td className="text-right font-medium">{fmt(row.balance)}</td>
+            <div className="overflow-x-auto">
+              <table className="table">
+                <thead><tr><th>Date</th><th>Narration</th><th className="text-right">Debit (₹)</th><th className="text-right">Credit (₹)</th><th className="text-right">Balance (₹)</th></tr></thead>
+                <tbody>
+                  <tr className="bg-gray-50 font-medium">
+                    <td>{dateFrom ? format(new Date(dateFrom), 'dd MMM yyyy') : '—'}</td>
+                    <td className="text-gray-500 italic">Opening Balance</td>
+                    <td colSpan={2}></td>
+                    <td className="text-right">{fmt(data.opening_balance)}</td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                  {data.rows.map((row, i) => (
+                    <tr key={i}>
+                      <td className="text-gray-500 text-xs">{row.date ? format(new Date(row.date), 'dd MMM yyyy') : '—'}</td>
+                      <td className="text-sm">{row.narration}</td>
+                      <td className="text-right text-sm">{row.debit > 0 ? fmt(row.debit) : '—'}</td>
+                      <td className="text-right text-sm text-danger">{row.credit > 0 ? fmt(row.credit) : '—'}</td>
+                      <td className="text-right font-medium">{fmt(row.balance)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </>
       )}

@@ -19,10 +19,10 @@
 
   /* ── Page Layout ── */
   .page-header {
-    @apply flex items-center justify-between mb-6;
+    @apply flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6;
   }
   .page-title {
-    @apply text-2xl font-bold text-gray-900;
+    @apply text-xl sm:text-2xl font-bold text-gray-900;
   }
   .breadcrumb {
     @apply text-xs text-gray-400 mb-1;
@@ -41,13 +41,13 @@
 
   /* ── Stat Cards ── */
   .stat-card {
-    @apply bg-white rounded-xl border border-gray-200 shadow-sm p-4;
+    @apply bg-white rounded-xl border border-gray-200 shadow-sm p-3 sm:p-4 min-w-0;
   }
   .stat-label {
-    @apply text-xs font-medium text-gray-500 uppercase tracking-wide;
+    @apply text-xs font-medium text-gray-500 uppercase tracking-wide truncate;
   }
   .stat-value {
-    @apply text-2xl font-bold text-gray-900 mt-1;
+    @apply text-xl sm:text-2xl font-bold text-gray-900 mt-1 truncate;
   }
 
   /* ── Tables ── */

@@ -39,7 +39,7 @@ export default function PurchasePage() {
           <h1 className="page-title">Purchase Entries</h1>
         </div>
         {canAccess && (
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Button variant="secondary" size="sm" onClick={() => navigate('/purchase/vendors')}>
               Vendors
             </Button>
@@ -54,13 +54,13 @@ export default function PurchasePage() {
       </div>
 
       <div className="card mb-4">
-        <div className="p-4 flex items-center gap-3">
+        <div className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
           <div className="relative flex-1 min-w-48">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <Input placeholder="Search by vendor invoice number..." value={search}
               onChange={e => { setSearch(e.target.value); setPage(1) }} className="pl-8" />
           </div>
-          <Select value={fy} onChange={e => { setFy(e.target.value); setPage(1) }} className="w-32">
+          <Select value={fy} onChange={e => { setFy(e.target.value); setPage(1) }} className="w-full sm:w-32">
             {FY_OPTIONS.map(f => <option key={f} value={f}>{f}</option>)}
           </Select>
         </div>
@@ -147,7 +147,7 @@ export default function PurchasePage() {
       </div>
 
       {data && (
-        <div className="mt-4 grid grid-cols-4 gap-3">
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
           <div className="stat-card">
             <div className="stat-label">Total entries</div>
             <div className="stat-value">{data.total}</div>

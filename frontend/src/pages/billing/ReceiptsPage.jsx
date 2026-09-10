@@ -197,22 +197,24 @@ export default function ReceiptsPage() {
         {isLoading ? <div className="flex justify-center py-16"><Spinner size={24} /></div>
           : data?.items?.length === 0 ? <Empty message="No receipts found" action={<Button variant="primary" onClick={() => setShowNew(true)}><Plus size={14} />New Receipt</Button>} />
           : (<>
-            <table className="table">
-              <thead><tr><th>Receipt No.</th><th>Customer</th><th>Date</th><th>Mode</th><th>Reference</th><th className="text-right">Amount (₹)</th><th>Type</th></tr></thead>
-              <tbody>
-                {data?.items?.map(r => (
-                  <tr key={r.id}>
-                    <td className="font-mono text-xs font-semibold">{r.payment_number}</td>
-                    <td className="font-medium">{r.customer_name}</td>
-                    <td className="text-gray-500 text-xs">{r.payment_date ? format(new Date(r.payment_date), 'dd MMM yyyy') : '—'}</td>
-                    <td><Badge color={MODE_COLORS[r.payment_mode] || 'gray'}>{r.payment_mode?.replace('_', ' ').toUpperCase()}</Badge></td>
-                    <td className="text-xs font-mono text-gray-500">{r.reference_number || '—'}</td>
-                    <td className="text-right font-semibold text-green-600">₹{Number(r.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                    <td><Badge color={r.is_advance ? 'amber' : 'blue'}>{r.is_advance ? 'Advance' : 'Invoice'}</Badge></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table className="table">
+                <thead><tr><th>Receipt No.</th><th>Customer</th><th>Date</th><th>Mode</th><th>Reference</th><th className="text-right">Amount (₹)</th><th>Type</th></tr></thead>
+                <tbody>
+                  {data?.items?.map(r => (
+                    <tr key={r.id}>
+                      <td className="font-mono text-xs font-semibold">{r.payment_number}</td>
+                      <td className="font-medium">{r.customer_name}</td>
+                      <td className="text-gray-500 text-xs">{r.payment_date ? format(new Date(r.payment_date), 'dd MMM yyyy') : '—'}</td>
+                      <td><Badge color={MODE_COLORS[r.payment_mode] || 'gray'}>{r.payment_mode?.replace('_', ' ').toUpperCase()}</Badge></td>
+                      <td className="text-xs font-mono text-gray-500">{r.reference_number || '—'}</td>
+                      <td className="text-right font-semibold text-green-600">₹{Number(r.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                      <td><Badge color={r.is_advance ? 'amber' : 'blue'}>{r.is_advance ? 'Advance' : 'Invoice'}</Badge></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             {data && <Pagination page={data.page} pages={data.pages} total={data.total} pageSize={20} onChange={setPage} />}
           </>)}
       </div>

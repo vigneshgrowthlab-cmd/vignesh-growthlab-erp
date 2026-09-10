@@ -94,7 +94,7 @@ export default function ProductsPage() {
           <div className="breadcrumb">Products & Inventory</div>
           <h1 className="page-title">Products</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {isAdmin() && (
             <>
               {selected.size > 0 && (
@@ -139,11 +139,11 @@ export default function ProductsPage() {
               className="pl-8"
             />
           </div>
-          <Select value={categoryId} onChange={e => { setCategoryId(e.target.value); setPage(1) }} className="w-44">
+          <Select value={categoryId} onChange={e => { setCategoryId(e.target.value); setPage(1) }} className="w-full sm:w-44">
             <option value="">All categories</option>
             {cats?.map(c => <option key={c.id} value={c.id}>{c.name}{c.prefix ? ` (${c.prefix})` : ''}</option>)}
           </Select>
-          <Select value={String(isActive)} onChange={e => { setIsActive(e.target.value === 'true'); setPage(1) }} className="w-32">
+          <Select value={String(isActive)} onChange={e => { setIsActive(e.target.value === 'true'); setPage(1) }} className="w-full sm:w-32">
             <option value="true">Active</option>
             <option value="false">Inactive</option>
           </Select>
@@ -247,7 +247,7 @@ export default function ProductsPage() {
 
       {/* Stats */}
       {data && (
-        <div className="mt-4 grid grid-cols-4 gap-3">
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
           <div className="stat-card">
             <div className="stat-label">Total products</div>
             <div className="stat-value">{data.total}</div>

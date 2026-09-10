@@ -214,7 +214,7 @@ export default function BillingPage() {
           <div className="breadcrumb">Sales & Billing</div>
           <h1 className="page-title">Invoices & Documents</h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button variant="secondary" size="sm" onClick={() => navigate('/billing/customers')}>
             Customers
           </Button>
@@ -234,11 +234,11 @@ export default function BillingPage() {
             <Input placeholder="Search by invoice number..." value={search}
               onChange={e => { setSearch(e.target.value); setPage(1) }} className="pl-8" />
           </div>
-          <Select value={docType} onChange={e => { setDocType(e.target.value); setPage(1) }} className="w-40">
+          <Select value={docType} onChange={e => { setDocType(e.target.value); setPage(1) }} className="w-full sm:w-40">
             <option value="">All types</option>
             {Object.entries(DOC_TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </Select>
-          <Select value={fy} onChange={e => { setFy(e.target.value); setPage(1) }} className="w-32">
+          <Select value={fy} onChange={e => { setFy(e.target.value); setPage(1) }} className="w-full sm:w-32">
             {FY_OPTIONS.map(f => <option key={f} value={f}>{f}</option>)}
           </Select>
         </div>
