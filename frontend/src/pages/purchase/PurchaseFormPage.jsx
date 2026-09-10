@@ -265,7 +265,7 @@ export default function PurchaseFormPage() {
         <div className="card">
           <div className="card-header"><div className="text-sm font-semibold text-gray-700">Vendor & Warehouse</div></div>
           <div className="card-body space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Vendor <span className="text-red-500">*</span></label>
                 <select value={form.vendor_id} onChange={e => hc('vendor_id', e.target.value)} className={ic(errors.vendor_id)}>
@@ -294,7 +294,7 @@ export default function PurchaseFormPage() {
                 {errors.warehouse_id && <p className="text-xs text-red-500 mt-1">{errors.warehouse_id}</p>}
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Vendor Invoice No. <span className="text-red-500">*</span></label>
                 <input value={form.vendor_invoice_number} onChange={e => hc('vendor_invoice_number', e.target.value)}
@@ -310,7 +310,7 @@ export default function PurchaseFormPage() {
                 <input type="date" value={form.received_date} onChange={e => hc('received_date', e.target.value)} className={ic()} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Payment Due Date</label>
                 <input type="date" value={form.payment_due_date} onChange={e => hc('payment_due_date', e.target.value)} className={ic()} />
@@ -333,7 +333,8 @@ export default function PurchaseFormPage() {
             </button>
           </div>
           <div className="card-body">
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[760px]">
               <thead>
                 <tr className="border-b border-gray-100">
                   <th className="text-left text-xs font-medium text-gray-500 pb-2 w-64">Product</th>
@@ -395,6 +396,7 @@ export default function PurchaseFormPage() {
                 })}
               </tbody>
             </table>
+            </div>
 
             {/* Totals */}
             <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">

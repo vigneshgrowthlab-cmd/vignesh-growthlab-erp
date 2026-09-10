@@ -531,7 +531,7 @@ function DCWarehouseCard({ warehouses, form, errors, onChange }) {
         <div className="text-sm font-semibold text-gray-700">Delivery Details</div>
       </div>
       <div className="card-body space-y-3">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
               From Warehouse <span className="text-gray-400 text-xs font-normal">(source)</span>
@@ -620,7 +620,7 @@ function TransportSection({ transporters, vehicles, form, onChange, requireVehic
         </span>
       </div>
       <div className="card-body space-y-3">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Transporter */}
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Transporter</label>
@@ -690,7 +690,7 @@ function TransportSection({ transporters, vehicles, form, onChange, requireVehic
             {vehicleError && <p className="text-xs text-red-500 mt-1">{vehicleError}</p>}
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* LR Number */}
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">LR / Transport No.</label>
@@ -1198,7 +1198,7 @@ export default function InvoiceFormPage() {
         <div className="card">
           <div className="card-header"><div className="text-sm font-semibold text-gray-700">Invoice Details</div></div>
           <div className="card-body space-y-4">
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Document Type</label>
                 <select value={form.document_type} onChange={e => {
@@ -1335,7 +1335,7 @@ export default function InvoiceFormPage() {
                     <button onClick={() => setShowAddAddress(true)} className="ml-2 text-blue-600 hover:text-blue-700 underline text-xs">Add address now</button>
                   </AlertBox>
                 ) : (
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">Billing Address <span className="text-red-500">*</span></label>
                       <select value={form.billing_address_id} onChange={e => hc('billing_address_id', e.target.value)} className={ic(errors.billing_address_id)}>
@@ -1534,7 +1534,7 @@ export default function InvoiceFormPage() {
             <div className="card-body space-y-3">
 
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">
                     Amount (₹) {!payment.is_advance && <span className="text-red-500">*</span>}
@@ -1632,7 +1632,7 @@ export default function InvoiceFormPage() {
         {/* Notes */}
         <div className="card">
           <div className="card-body">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Notes</label>
                 <textarea value={form.notes} onChange={e => hc('notes', e.target.value)}

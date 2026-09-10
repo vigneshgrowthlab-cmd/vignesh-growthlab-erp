@@ -145,7 +145,7 @@ function VendorForm({ initial = emptyForm, onSubmit, onCancel, loading, title })
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Phone</label>
             <input
@@ -178,7 +178,7 @@ function VendorForm({ initial = emptyForm, onSubmit, onCancel, loading, title })
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">State</label>
             <select
@@ -224,7 +224,7 @@ function VendorForm({ initial = emptyForm, onSubmit, onCancel, loading, title })
           <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
             Bank Details
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Bank Name</label>
               <input
@@ -333,7 +333,7 @@ function VendorDetailModal({ vendor, onClose, onEdit }) {
               <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                 Bank Details
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {vendor.bank_name && (
                   <div>
                     <div className="text-xs text-gray-400">Bank</div>
@@ -478,66 +478,68 @@ export default function VendorsPage() {
           />
         ) : (
           <>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Vendor</th>
-                  <th>GSTIN</th>
-                  <th>State</th>
-                  <th>Phone</th>
-                  <th>Credit Days</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data?.items?.map(v => (
-                  <tr key={v.id} className="cursor-pointer"
-                    onClick={() => setViewVendor(v)}>
-                    <td>
-                      <div className="font-medium text-gray-800">{v.trade_name}</div>
-                      {v.legal_name && v.legal_name !== v.trade_name && (
-                        <div className="text-xs text-gray-400">{v.legal_name}</div>
-                      )}
-                      {v.contact_person && (
-                        <div className="text-xs text-gray-400">{v.contact_person}</div>
-                      )}
-                    </td>
-                    <td className="font-mono text-xs text-gray-500">
-                      {v.gstin || '—'}
-                    </td>
-                    <td className="text-gray-500 text-sm">{v.state || '—'}</td>
-                    <td className="text-gray-500 text-sm">{v.phone || '—'}</td>
-                    <td className="text-center">
-                      {v.credit_days > 0
-                        ? <Badge color="blue">{v.credit_days} days</Badge>
-                        : <span className="text-gray-400 text-xs">—</span>}
-                    </td>
-                    <td>
-                      <Badge color={v.is_active ? 'green' : 'gray'}>
-                        {v.is_active ? 'Active' : 'Inactive'}
-                      </Badge>
-                    </td>
-                    <td onClick={e => e.stopPropagation()}>
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => setViewVendor(v)}
-                          className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600"
-                          title="View details">
-                          <Eye size={14} />
-                        </button>
-                        <button
-                          onClick={() => { setEditVendor(v); setShowNew(false) }}
-                          className="p-1.5 rounded hover:bg-blue-50 text-gray-400 hover:text-blue-600"
-                          title="Edit vendor">
-                          <Edit2 size={14} />
-                        </button>
-                      </div>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="table min-w-[650px]">
+                <thead>
+                  <tr>
+                    <th>Vendor</th>
+                    <th>GSTIN</th>
+                    <th>State</th>
+                    <th>Phone</th>
+                    <th>Credit Days</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {data?.items?.map(v => (
+                    <tr key={v.id} className="cursor-pointer"
+                      onClick={() => setViewVendor(v)}>
+                      <td>
+                        <div className="font-medium text-gray-800">{v.trade_name}</div>
+                        {v.legal_name && v.legal_name !== v.trade_name && (
+                          <div className="text-xs text-gray-400">{v.legal_name}</div>
+                        )}
+                        {v.contact_person && (
+                          <div className="text-xs text-gray-400">{v.contact_person}</div>
+                        )}
+                      </td>
+                      <td className="font-mono text-xs text-gray-500">
+                        {v.gstin || '—'}
+                      </td>
+                      <td className="text-gray-500 text-sm">{v.state || '—'}</td>
+                      <td className="text-gray-500 text-sm">{v.phone || '—'}</td>
+                      <td className="text-center">
+                        {v.credit_days > 0
+                          ? <Badge color="blue">{v.credit_days} days</Badge>
+                          : <span className="text-gray-400 text-xs">—</span>}
+                      </td>
+                      <td>
+                        <Badge color={v.is_active ? 'green' : 'gray'}>
+                          {v.is_active ? 'Active' : 'Inactive'}
+                        </Badge>
+                      </td>
+                      <td onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => setViewVendor(v)}
+                            className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                            title="View details">
+                            <Eye size={14} />
+                          </button>
+                          <button
+                            onClick={() => { setEditVendor(v); setShowNew(false) }}
+                            className="p-1.5 rounded hover:bg-blue-50 text-gray-400 hover:text-blue-600"
+                            title="Edit vendor">
+                            <Edit2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
             {data && (
               <Pagination
                 page={data.page}

@@ -121,7 +121,7 @@ function ChequeTab() {
             <button onClick={() => { setShowNew(false); setErrors({}) }} className="text-gray-400 hover:text-gray-600"><X size={16} /></button>
           </div>
           <div className="card-body space-y-4">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Cheque Number <span className="text-red-500">*</span></label>
                 <input value={form.cheque_number} onChange={e => hc('cheque_number', e.target.value)} placeholder="123456" className={ic(errors.cheque_number)} />
@@ -137,7 +137,7 @@ function ChequeTab() {
                 {errors.bank_name && <p className="text-xs text-red-500 mt-1">{errors.bank_name}</p>}
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Amount (₹) <span className="text-red-500">*</span></label>
                 <input type="number" step="0.01" min="0.01" value={form.amount} onChange={e => hc('amount', e.target.value)} placeholder="0.00" className={ic(errors.amount)} />
@@ -171,38 +171,40 @@ function ChequeTab() {
       {isLoading ? <div className="flex justify-center py-8"><Spinner size={24} /></div>
         : cheques?.items?.length === 0 ? <Empty message="No cheques found" />
         : (
-          <table className="table">
-            <thead><tr><th>Cheque No.</th><th>Bank</th><th>Customer</th><th>Cheque Date</th><th className="text-right">Amount (₹)</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody>
-              {cheques?.items?.map(ch => (
-                <tr key={ch.id}>
-                  <td className="font-mono text-xs font-semibold">{ch.cheque_number}</td>
-                  <td className="text-sm text-gray-600">{ch.bank_name}</td>
-                  <td className="text-sm">{ch.customer_name || '—'}</td>
-                  <td className="text-xs text-gray-500">{ch.cheque_date ? format(new Date(ch.cheque_date), 'dd MMM yyyy') : '—'}</td>
-                  <td className="text-right font-semibold">₹{Number(ch.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                  <td><Badge color={ch.is_pdc ? 'purple' : 'blue'}>{ch.is_pdc ? 'PDC' : 'Regular'}</Badge></td>
-                  <td><Badge color={STATUS_COLORS[ch.status] || 'gray'}>{ch.status}</Badge></td>
-                  <td>
-                    <div className="flex gap-1">
-                      {ch.status === 'received' && (
-                        <button onClick={() => actionMutation.mutate({ action: 'deposit', id: ch.id, data: { deposit_date: format(new Date(), 'yyyy-MM-dd') } })}
-                          className="px-2 py-1 text-xs bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200">Deposit</button>
-                      )}
-                      {ch.status === 'deposited' && (
-                        <>
-                          <button onClick={() => actionMutation.mutate({ action: 'clear', id: ch.id, data: { clearance_date: format(new Date(), 'yyyy-MM-dd') } })}
-                            className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-lg hover:bg-green-200">Clear</button>
-                          <button onClick={() => actionMutation.mutate({ action: 'bounce', id: ch.id, data: { bounce_date: format(new Date(), 'yyyy-MM-dd'), bounce_reason: 'Insufficient funds' } })}
-                            className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200">Bounce</button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="table min-w-[700px]">
+              <thead><tr><th>Cheque No.</th><th>Bank</th><th>Customer</th><th>Cheque Date</th><th className="text-right">Amount (₹)</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody>
+                {cheques?.items?.map(ch => (
+                  <tr key={ch.id}>
+                    <td className="font-mono text-xs font-semibold">{ch.cheque_number}</td>
+                    <td className="text-sm text-gray-600">{ch.bank_name}</td>
+                    <td className="text-sm">{ch.customer_name || '—'}</td>
+                    <td className="text-xs text-gray-500">{ch.cheque_date ? format(new Date(ch.cheque_date), 'dd MMM yyyy') : '—'}</td>
+                    <td className="text-right font-semibold">₹{Number(ch.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td><Badge color={ch.is_pdc ? 'purple' : 'blue'}>{ch.is_pdc ? 'PDC' : 'Regular'}</Badge></td>
+                    <td><Badge color={STATUS_COLORS[ch.status] || 'gray'}>{ch.status}</Badge></td>
+                    <td>
+                      <div className="flex gap-1">
+                        {ch.status === 'received' && (
+                          <button onClick={() => actionMutation.mutate({ action: 'deposit', id: ch.id, data: { deposit_date: format(new Date(), 'yyyy-MM-dd') } })}
+                            className="px-2 py-1 text-xs bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200">Deposit</button>
+                        )}
+                        {ch.status === 'deposited' && (
+                          <>
+                            <button onClick={() => actionMutation.mutate({ action: 'clear', id: ch.id, data: { clearance_date: format(new Date(), 'yyyy-MM-dd') } })}
+                              className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-lg hover:bg-green-200">Clear</button>
+                            <button onClick={() => actionMutation.mutate({ action: 'bounce', id: ch.id, data: { bounce_date: format(new Date(), 'yyyy-MM-dd'), bounce_reason: 'Insufficient funds' } })}
+                              className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200">Bounce</button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
     </div>
   )
@@ -397,8 +399,8 @@ function ExpensesTab() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div className="flex gap-2 flex-wrap">
           {['', 'approved', 'pending_approval', 'rejected'].map(s => (
             <button key={s} onClick={() => setStatusFilter(s)}
               className={clsx('px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
@@ -407,7 +409,7 @@ function ExpensesTab() {
             </button>
           ))}
         </div>
-        <Button variant="primary" size="sm" onClick={() => setShowNew(true)}><Plus size={14} /> New Expense</Button>
+        <Button variant="primary" size="sm" onClick={() => setShowNew(true)} className="self-start sm:self-auto"><Plus size={14} /> New Expense</Button>
       </div>
 
       {showNew && (
@@ -417,7 +419,7 @@ function ExpensesTab() {
             <button onClick={() => { setShowNew(false); setErrors({}) }} className="text-gray-400"><X size={16} /></button>
           </div>
           <div className="card-body space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Date <span className="text-red-500">*</span></label>
                 <input type="date" value={form.expense_date} onChange={e => hc('expense_date', e.target.value)} className={ic(errors.expense_date)} />
@@ -452,7 +454,7 @@ function ExpensesTab() {
                 placeholder="What was this expense for?" className={ic(errors.description)} />
               {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description}</p>}
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Amount (₹) <span className="text-red-500">*</span></label>
                 <input type="number" step="0.01" min="0.01" value={form.amount} onChange={e => hc('amount', e.target.value)}
@@ -483,33 +485,35 @@ function ExpensesTab() {
       {isLoading ? <div className="flex justify-center py-8"><Spinner size={24} /></div>
         : expenses?.items?.length === 0 ? <Empty message="No expenses found" />
         : (
-          <table className="table">
-            <thead><tr><th>No.</th><th>Date</th><th>Category</th><th>Description</th><th>Mode</th><th className="text-right">Amount (₹)</th><th>Status</th>{isAdmin() && <th>Actions</th>}</tr></thead>
-            <tbody>
-              {expenses?.items?.map(e => (
-                <tr key={e.id}>
-                  <td className="font-mono text-xs">{e.expense_number}</td>
-                  <td className="text-xs text-gray-500">{e.expense_date ? format(new Date(e.expense_date), 'dd MMM yyyy') : '—'}</td>
-                  <td><Badge color="gray">{e.category}</Badge></td>
-                  <td className="text-sm text-gray-700 max-w-xs truncate">{e.description}</td>
-                  <td className="text-xs text-gray-500">{e.payment_mode}</td>
-                  <td className="text-right font-medium">₹{Number(e.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                  <td><Badge color={STATUS_COLORS[e.status] || 'gray'}>{e.status}</Badge></td>
-                  {isAdmin() && e.status === 'pending_approval' && (
-                    <td>
-                      <div className="flex gap-1">
-                        <button onClick={() => approveMutation.mutate({ id: e.id, approved: true })}
-                          className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">Approve</button>
-                        <button onClick={() => approveMutation.mutate({ id: e.id, approved: false })}
-                          className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded">Reject</button>
-                      </div>
-                    </td>
-                  )}
-                  {isAdmin() && e.status !== 'pending_approval' && <td />}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="table min-w-[640px]">
+              <thead><tr><th>No.</th><th>Date</th><th>Category</th><th>Description</th><th>Mode</th><th className="text-right">Amount (₹)</th><th>Status</th>{isAdmin() && <th>Actions</th>}</tr></thead>
+              <tbody>
+                {expenses?.items?.map(e => (
+                  <tr key={e.id}>
+                    <td className="font-mono text-xs">{e.expense_number}</td>
+                    <td className="text-xs text-gray-500">{e.expense_date ? format(new Date(e.expense_date), 'dd MMM yyyy') : '—'}</td>
+                    <td><Badge color="gray">{e.category}</Badge></td>
+                    <td className="text-sm text-gray-700 max-w-xs truncate">{e.description}</td>
+                    <td className="text-xs text-gray-500">{e.payment_mode}</td>
+                    <td className="text-right font-medium">₹{Number(e.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td><Badge color={STATUS_COLORS[e.status] || 'gray'}>{e.status}</Badge></td>
+                    {isAdmin() && e.status === 'pending_approval' && (
+                      <td>
+                        <div className="flex gap-1">
+                          <button onClick={() => approveMutation.mutate({ id: e.id, approved: true })}
+                            className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">Approve</button>
+                          <button onClick={() => approveMutation.mutate({ id: e.id, approved: false })}
+                            className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded">Reject</button>
+                        </div>
+                      </td>
+                    )}
+                    {isAdmin() && e.status !== 'pending_approval' && <td />}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
     </div>
   )
@@ -590,17 +594,17 @@ function TDSTab() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
           <select value={fy} onChange={e => setFy(e.target.value)}
             className="h-8 px-3 rounded-lg border border-gray-300 text-sm">
             {['2026-27', '2025-26', '2024-25', '2023-24'].map(y => <option key={y} value={y}>{y}</option>)}
           </select>
         </div>
-        <Button variant="primary" size="sm" onClick={() => setShowNew(true)}><Plus size={14} /> New TDS Entry</Button>
+        <Button variant="primary" size="sm" onClick={() => setShowNew(true)} className="self-start sm:self-auto"><Plus size={14} /> New TDS Entry</Button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         <div className="stat-card"><div className="stat-label">Total TDS Receivable</div><div className="stat-value text-primary">₹{totalTDS.toLocaleString('en-IN', { minimumFractionDigits: 0 })}</div></div>
         <div className="stat-card"><div className="stat-label">Reconciled</div><div className="stat-value text-success">{reconciled}</div></div>
         <div className="stat-card"><div className="stat-label">Unreconciled</div><div className="stat-value text-danger">{(tdsEntries?.items?.length || 0) - reconciled}</div></div>
@@ -613,7 +617,7 @@ function TDSTab() {
             <button onClick={() => { setShowNew(false); setErrors({}) }} className="text-gray-400"><X size={16} /></button>
           </div>
           <div className="card-body space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Customer <span className="text-red-500">*</span></label>
                 <select value={form.customer_id} onChange={e => hc('customer_id', e.target.value)}
@@ -628,7 +632,7 @@ function TDSTab() {
                 <input type="date" value={form.deduction_date} onChange={e => hc('deduction_date', e.target.value)} className={ic(errors.deduction_date)} />
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Invoice Amount (₹) <span className="text-red-500">*</span></label>
                 <input type="number" step="0.01" value={form.invoice_amount} onChange={e => hc('invoice_amount', e.target.value)}
@@ -646,7 +650,7 @@ function TDSTab() {
                 {errors.tds_amount && <p className="text-xs text-red-500 mt-1">{errors.tds_amount}</p>}
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">TAN Number</label>
                 <input value={form.tan_number} onChange={e => hc('tan_number', e.target.value.toUpperCase())}
@@ -671,23 +675,25 @@ function TDSTab() {
       {isLoading ? <div className="flex justify-center py-8"><Spinner size={24} /></div>
         : tdsEntries?.items?.length === 0 ? <Empty message="No TDS entries for this FY" />
         : (
-          <table className="table">
-            <thead><tr><th>TDS No.</th><th>Customer</th><th>Date</th><th>Section</th><th className="text-right">Invoice Amt</th><th className="text-right">TDS Amount</th><th>TAN</th><th>Reconciled</th></tr></thead>
-            <tbody>
-              {tdsEntries?.items?.map(e => (
-                <tr key={e.id}>
-                  <td className="font-mono text-xs">{e.tds_number}</td>
-                  <td className="text-sm">{e.customer_name}</td>
-                  <td className="text-xs text-gray-500">{e.deduction_date ? format(new Date(e.deduction_date), 'dd MMM yyyy') : '—'}</td>
-                  <td><Badge color="blue">{e.section_code}</Badge></td>
-                  <td className="text-right text-sm">₹{Number(e.invoice_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                  <td className="text-right font-semibold text-primary">₹{Number(e.tds_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                  <td className="text-xs font-mono text-gray-500">{e.tan_number || '—'}</td>
-                  <td><Badge color={e.is_reconciled ? 'green' : 'gray'}>{e.is_reconciled ? 'Yes' : 'No'}</Badge></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="table min-w-[700px]">
+              <thead><tr><th>TDS No.</th><th>Customer</th><th>Date</th><th>Section</th><th className="text-right">Invoice Amt</th><th className="text-right">TDS Amount</th><th>TAN</th><th>Reconciled</th></tr></thead>
+              <tbody>
+                {tdsEntries?.items?.map(e => (
+                  <tr key={e.id}>
+                    <td className="font-mono text-xs">{e.tds_number}</td>
+                    <td className="text-sm">{e.customer_name}</td>
+                    <td className="text-xs text-gray-500">{e.deduction_date ? format(new Date(e.deduction_date), 'dd MMM yyyy') : '—'}</td>
+                    <td><Badge color="blue">{e.section_code}</Badge></td>
+                    <td className="text-right text-sm">₹{Number(e.invoice_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td className="text-right font-semibold text-primary">₹{Number(e.tds_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td className="text-xs font-mono text-gray-500">{e.tan_number || '—'}</td>
+                    <td><Badge color={e.is_reconciled ? 'green' : 'gray'}>{e.is_reconciled ? 'Yes' : 'No'}</Badge></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
     </div>
   )
@@ -702,7 +708,7 @@ function AgeingTab() {
   const total = data?.summary || {}
   return (
     <div>
-      <div className="grid grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
         {[
           { label: 'Current (0-30)', val: total.bucket_0_30, color: 'text-success' },
           { label: '31-60 Days', val: total.bucket_31_60, color: 'text-amber-600' },
@@ -720,22 +726,24 @@ function AgeingTab() {
       {isLoading ? <div className="flex justify-center py-8"><Spinner size={24} /></div>
         : data?.items?.length === 0 ? <Empty message="No outstanding amounts" />
         : (
-          <table className="table">
-            <thead><tr><th>Customer</th><th className="text-right">Current</th><th className="text-right">31-60</th><th className="text-right">61-90</th><th className="text-right">90+</th><th className="text-right">Total</th></tr></thead>
-            <tbody>
-              {data?.items?.map((c, i) => (
-                <tr key={i}>
-                  <td className="font-medium">{c.customer_name}</td>
-                  {['bucket_0_30', 'bucket_31_60', 'bucket_61_90', 'bucket_90_plus'].map(k => (
-                    <td key={k} className={clsx('text-right text-sm', c[k] > 0 ? 'font-medium' : 'text-gray-300')}>
-                      {c[k] > 0 ? `₹${Number(c[k]).toLocaleString('en-IN', { minimumFractionDigits: 0 })}` : '—'}
-                    </td>
-                  ))}
-                  <td className="text-right font-semibold text-primary">₹{Number(c.total_outstanding).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="table min-w-[600px]">
+              <thead><tr><th>Customer</th><th className="text-right">Current</th><th className="text-right">31-60</th><th className="text-right">61-90</th><th className="text-right">90+</th><th className="text-right">Total</th></tr></thead>
+              <tbody>
+                {data?.items?.map((c, i) => (
+                  <tr key={i}>
+                    <td className="font-medium">{c.customer_name}</td>
+                    {['bucket_0_30', 'bucket_31_60', 'bucket_61_90', 'bucket_90_plus'].map(k => (
+                      <td key={k} className={clsx('text-right text-sm', c[k] > 0 ? 'font-medium' : 'text-gray-300')}>
+                        {c[k] > 0 ? `₹${Number(c[k]).toLocaleString('en-IN', { minimumFractionDigits: 0 })}` : '—'}
+                      </td>
+                    ))}
+                    <td className="text-right font-semibold text-primary">₹{Number(c.total_outstanding).toLocaleString('en-IN', { minimumFractionDigits: 0 })}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
     </div>
   )
@@ -779,7 +787,7 @@ function JournalTab() {
             <button onClick={() => setShowNew(false)} className="text-gray-400"><X size={16} /></button>
           </div>
           <div className="card-body space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Date</label>
                 <input type="date" value={form.entry_date} onChange={e => setForm(p => ({ ...p, entry_date: e.target.value }))} className={ic()} />
@@ -792,7 +800,7 @@ function JournalTab() {
               </div>
             </div>
             {form.lines.map((line, i) => (
-              <div key={i} className="grid grid-cols-3 gap-3 items-center">
+              <div key={i} className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 items-center">
                 <select value={line.account_code} onChange={e => { const l = [...form.lines]; l[i].account_code = e.target.value; setForm(p => ({ ...p, lines: l })) }}
                   className="w-full h-9 px-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:border-blue-500">
                   <option value="">Select account...</option>
@@ -809,7 +817,7 @@ function JournalTab() {
             ))}
             <button onClick={() => setForm(p => ({ ...p, lines: [...p.lines, { account_code: '', transaction_type: 'debit', amount: '' }] }))}
               className="text-xs text-blue-600 hover:text-blue-700">+ Add line</button>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="text-sm">
                 Debit: <span className="font-semibold">₹{totalDebit.toFixed(2)}</span> &nbsp;|&nbsp;
                 Credit: <span className="font-semibold">₹{totalCredit.toFixed(2)}</span>
@@ -826,19 +834,21 @@ function JournalTab() {
       {isLoading ? <div className="flex justify-center py-8"><Spinner size={24} /></div>
         : entries?.items?.length === 0 ? <Empty message="No journal entries" />
         : (
-          <table className="table">
-            <thead><tr><th>Entry No.</th><th>Date</th><th>Narration</th><th>Lines</th></tr></thead>
-            <tbody>
-              {entries?.items?.map(e => (
-                <tr key={e.id}>
-                  <td className="font-mono text-xs">{e.entry_number}</td>
-                  <td className="text-xs text-gray-500">{e.entry_date ? format(new Date(e.entry_date), 'dd MMM yyyy') : '—'}</td>
-                  <td className="text-sm text-gray-700">{e.narration}</td>
-                  <td className="text-xs text-gray-400">{e.lines?.length || 0} lines</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="table min-w-[500px]">
+              <thead><tr><th>Entry No.</th><th>Date</th><th>Narration</th><th>Lines</th></tr></thead>
+              <tbody>
+                {entries?.items?.map(e => (
+                  <tr key={e.id}>
+                    <td className="font-mono text-xs">{e.entry_number}</td>
+                    <td className="text-xs text-gray-500">{e.entry_date ? format(new Date(e.entry_date), 'dd MMM yyyy') : '—'}</td>
+                    <td className="text-sm text-gray-700">{e.narration}</td>
+                    <td className="text-xs text-gray-400">{e.lines?.length || 0} lines</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
     </div>
   )
@@ -864,25 +874,27 @@ function TrialBalanceTab() {
         : !data?.items?.length ? <Empty message="No data available" />
         : (
           <>
-            <table className="table">
-              <thead><tr><th>Account Code</th><th>Account Name</th><th>Type</th><th className="text-right">Debit (₹)</th><th className="text-right">Credit (₹)</th></tr></thead>
-              <tbody>
-                {data.items.map((a, i) => (
-                  <tr key={i}>
-                    <td className="font-mono text-xs">{a.account_code}</td>
-                    <td className="font-medium text-sm">{a.account_name}</td>
-                    <td><Badge color="gray">{a.account_type}</Badge></td>
-                    <td className="text-right text-sm">{a.debit_total > 0 ? `₹${Number(a.debit_total).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '—'}</td>
-                    <td className="text-right text-sm text-success">{a.credit_total > 0 ? `₹${Number(a.credit_total).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '—'}</td>
+            <div className="overflow-x-auto">
+              <table className="table min-w-[500px]">
+                <thead><tr><th>Account Code</th><th>Account Name</th><th>Type</th><th className="text-right">Debit (₹)</th><th className="text-right">Credit (₹)</th></tr></thead>
+                <tbody>
+                  {data.items.map((a, i) => (
+                    <tr key={i}>
+                      <td className="font-mono text-xs">{a.account_code}</td>
+                      <td className="font-medium text-sm">{a.account_name}</td>
+                      <td><Badge color="gray">{a.account_type}</Badge></td>
+                      <td className="text-right text-sm">{a.debit_total > 0 ? `₹${Number(a.debit_total).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '—'}</td>
+                      <td className="text-right text-sm text-success">{a.credit_total > 0 ? `₹${Number(a.credit_total).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '—'}</td>
+                    </tr>
+                  ))}
+                  <tr className="bg-gray-50 font-semibold">
+                    <td colSpan={3}>Total</td>
+                    <td className="text-right">₹{Number(data.total_debit || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td className="text-right text-success">₹{Number(data.total_credit || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                   </tr>
-                ))}
-                <tr className="bg-gray-50 font-semibold">
-                  <td colSpan={3}>Total</td>
-                  <td className="text-right">₹{Number(data.total_debit || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                  <td className="text-right text-success">₹{Number(data.total_credit || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                </tr>
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </div>
             {Math.abs((data.total_debit || 0) - (data.total_credit || 0)) < 0.01
               ? <div className="text-center text-success text-sm mt-4 font-medium">✓ Trial Balance is balanced</div>
               : <div className="text-center text-danger text-sm mt-4">✗ Difference: ₹{Math.abs((data.total_debit || 0) - (data.total_credit || 0)).toFixed(2)}</div>}
@@ -900,23 +912,25 @@ function VendorDuesTab() {
       {isLoading ? <div className="flex justify-center py-8"><Spinner size={24} /></div>
         : data?.length === 0 ? <Empty message="No vendor dues" />
         : (
-          <table className="table">
-            <thead><tr><th>Vendor</th><th>Purchase No.</th><th>Invoice Date</th><th>Due Date</th><th className="text-right">Total (₹)</th><th className="text-right">Paid (₹)</th><th className="text-right">Outstanding (₹)</th><th>Overdue</th></tr></thead>
-            <tbody>
-              {data?.map((d, i) => (
-                <tr key={i}>
-                  <td className="font-medium">{d.vendor_name}</td>
-                  <td className="font-mono text-xs">{d.purchase_number}</td>
-                  <td className="text-xs text-gray-500">{d.invoice_date ? format(new Date(d.invoice_date), 'dd MMM yyyy') : '—'}</td>
-                  <td className="text-xs text-gray-500">{d.payment_due_date ? format(new Date(d.payment_due_date), 'dd MMM yyyy') : '—'}</td>
-                  <td className="text-right font-medium">₹{Number(d.total_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                  <td className="text-right text-success">₹{Number(d.paid_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                  <td className="text-right font-semibold text-danger">₹{Number(d.outstanding_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
-                  <td><Badge color={d.is_overdue ? 'red' : d.payment_due_date ? 'green' : 'gray'}>{d.is_overdue ? `${d.overdue_days}d` : d.payment_due_date ? 'On time' : 'No due date'}</Badge></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="table min-w-[700px]">
+              <thead><tr><th>Vendor</th><th>Purchase No.</th><th>Invoice Date</th><th>Due Date</th><th className="text-right">Total (₹)</th><th className="text-right">Paid (₹)</th><th className="text-right">Outstanding (₹)</th><th>Overdue</th></tr></thead>
+              <tbody>
+                {data?.map((d, i) => (
+                  <tr key={i}>
+                    <td className="font-medium">{d.vendor_name}</td>
+                    <td className="font-mono text-xs">{d.purchase_number}</td>
+                    <td className="text-xs text-gray-500">{d.invoice_date ? format(new Date(d.invoice_date), 'dd MMM yyyy') : '—'}</td>
+                    <td className="text-xs text-gray-500">{d.payment_due_date ? format(new Date(d.payment_due_date), 'dd MMM yyyy') : '—'}</td>
+                    <td className="text-right font-medium">₹{Number(d.total_amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td className="text-right text-success">₹{Number(d.paid_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td className="text-right font-semibold text-danger">₹{Number(d.outstanding_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td><Badge color={d.is_overdue ? 'red' : d.payment_due_date ? 'green' : 'gray'}>{d.is_overdue ? `${d.overdue_days}d` : d.payment_due_date ? 'On time' : 'No due date'}</Badge></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
     </div>
   )

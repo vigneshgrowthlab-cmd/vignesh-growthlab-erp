@@ -111,7 +111,7 @@ export default function PurchaseDetailPage() {
             </span>
           </h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button variant="secondary" size="sm" onClick={handlePrint}>
             <Printer size={14} /> Print
           </Button>
@@ -133,7 +133,7 @@ export default function PurchaseDetailPage() {
       )}
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-4">
         <div className="card p-4">
           <div className="text-xs text-gray-500 mb-1">Total Amount</div>
           <div className="text-xl font-bold text-gray-900">
@@ -163,7 +163,7 @@ export default function PurchaseDetailPage() {
           </Badge>
         </div>
         <div className="card-body">
-          <div className="grid grid-cols-3 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 text-sm">
             {[
               ['Vendor', purchase.vendor_name],
               ['Warehouse', purchase.warehouse_name || 'Main Warehouse'],
@@ -274,50 +274,52 @@ export default function PurchaseDetailPage() {
           {!payments?.items?.length ? (
             <div className="text-center py-6 text-sm text-gray-400">No payments recorded yet</div>
           ) : (
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Payment No.</th>
-                  <th>Date</th>
-                  <th>Mode</th>
-                  <th>Reference</th>
-                  <th className="text-right">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {payments.items.map(p => (
-                  <tr key={p.id}>
-                    <td className="font-mono text-xs">{p.payment_number}</td>
-                    <td>{p.payment_date ? format(new Date(p.payment_date), 'dd MMM yyyy') : '—'}</td>
-                    <td>
-                      <span className="px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-700 capitalize">
-                        {p.payment_mode}
-                      </span>
-                    </td>
-                    <td className="text-gray-500 text-xs">{p.reference_number || '—'}</td>
-                    <td className="text-right font-semibold text-green-600">
-                      ₹{Number(p.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="border-t-2 border-gray-200">
-                  <td colSpan={4} className="text-right text-sm font-medium text-gray-600 py-2">Total Paid</td>
-                  <td className="text-right font-bold text-green-600 py-2">
-                    ₹{totalPaid.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                  </td>
-                </tr>
-                {outstanding > 0 && (
+            <div className="overflow-x-auto">
+              <table className="table min-w-[500px]">
+                <thead>
                   <tr>
-                    <td colSpan={4} className="text-right text-sm font-medium text-gray-600 pb-2">Outstanding</td>
-                    <td className="text-right font-bold text-red-600 pb-2">
-                      ₹{outstanding.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    <th>Payment No.</th>
+                    <th>Date</th>
+                    <th>Mode</th>
+                    <th>Reference</th>
+                    <th className="text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {payments.items.map(p => (
+                    <tr key={p.id}>
+                      <td className="font-mono text-xs">{p.payment_number}</td>
+                      <td>{p.payment_date ? format(new Date(p.payment_date), 'dd MMM yyyy') : '—'}</td>
+                      <td>
+                        <span className="px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-700 capitalize">
+                          {p.payment_mode}
+                        </span>
+                      </td>
+                      <td className="text-gray-500 text-xs">{p.reference_number || '—'}</td>
+                      <td className="text-right font-semibold text-green-600">
+                        ₹{Number(p.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t-2 border-gray-200">
+                    <td colSpan={4} className="text-right text-sm font-medium text-gray-600 py-2">Total Paid</td>
+                    <td className="text-right font-bold text-green-600 py-2">
+                      ₹{totalPaid.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </td>
                   </tr>
-                )}
-              </tfoot>
-            </table>
+                  {outstanding > 0 && (
+                    <tr>
+                      <td colSpan={4} className="text-right text-sm font-medium text-gray-600 pb-2">Outstanding</td>
+                      <td className="text-right font-bold text-red-600 pb-2">
+                        ₹{outstanding.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+                  )}
+                </tfoot>
+              </table>
+            </div>
           )}
         </div>
       </div>
